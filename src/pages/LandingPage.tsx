@@ -64,7 +64,7 @@ export const LandingPage = () => {
                   onClick={handleScheduleClick}
                   className="btn-hero mb-8"
                 >
-                  SCHEDULE APPOINTMENT
+                  DOCTOR LOGIN
                 </button>
               </div>
             </div>

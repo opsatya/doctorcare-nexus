@@ -56,22 +56,22 @@ export const LoginPage = () => {
         });
         
         toast({
-          title: 'Login realizado com sucesso!',
-          description: `Bem-vindo de volta, ${result.doctor.name}`,
+          title: 'Login successful!',
+          description: `Welcome back, ${result.doctor.name}`,
         });
         
         navigate('/dashboard');
       } else {
         toast({
-          title: 'Erro no login',
-          description: result.message || 'Email ou senha incorretos.',
+          title: 'Login error',
+          description: result.message || 'Incorrect email or password.',
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Erro de conexão',
-        description: 'Não foi possível conectar ao servidor.',
+        title: 'Connection error',
+        description: 'Could not connect to the server.',
         variant: 'destructive',
       });
     } finally {

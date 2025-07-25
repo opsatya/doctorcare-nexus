@@ -69,15 +69,15 @@ export const SignupPage = () => {
         navigate('/dashboard');
       } else {
         toast({
-          title: 'Erro no cadastro',
-          description: result.message || 'Ocorreu um erro inesperado.',
+          title: 'Registration error',
+          description: result.message || 'An unexpected error occurred.',
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Erro de conexão',
-        description: 'Não foi possível conectar ao servidor.',
+        title: 'Connection error',
+        description: 'Could not connect to the server.',
         variant: 'destructive',
       });
     } finally {

@@ -77,8 +77,8 @@ export const Dashboard = () => {
       }
     } catch (error) {
       toast({
-        title: 'Erro ao carregar dados',
-        description: 'Não foi possível carregar os dados do dashboard.',
+        title: 'Error loading data',
+        description: 'Could not load dashboard data.',
         variant: 'destructive',
       });
     } finally {
@@ -94,8 +94,8 @@ export const Dashboard = () => {
     });
     
     toast({
-      title: 'Logout realizado',
-      description: 'Até logo!',
+      title: 'Logged out',
+      description: 'Goodbye!',
     });
     
     navigate('/');
@@ -104,11 +104,11 @@ export const Dashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return <Badge className="bg-green-100 text-green-800">Confirmada</Badge>;
+        return <Badge className="bg-green-100 text-green-800">Confirmed</Badge>;
       case 'pending':
-        return <Badge variant="outline">Pendente</Badge>;
+        return <Badge variant="outline">Pending</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelada</Badge>;
+        return <Badge variant="destructive">Cancelled</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -140,7 +140,7 @@ export const Dashboard = () => {
                 className="flex items-center space-x-2"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Sair</span>
+                <span>Logout</span>
               </Button>
             </div>
           </div>
@@ -156,10 +156,10 @@ export const Dashboard = () => {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Bem-vindo, {auth.doctor?.name}
+            Welcome, {auth.doctor?.name}
           </h1>
           <p className="text-muted-foreground">
-            Aqui está um resumo das suas atividades de hoje.
+            Here's a summary of your activities for today.
           </p>
         </motion.div>
 
@@ -173,52 +173,52 @@ export const Dashboard = () => {
           >
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Pacientes</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
                 <Users className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalPatients}</div>
                 <p className="text-xs text-muted-foreground">
-                  Pacientes cadastrados
+                  Registered patients
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Consultas Hoje</CardTitle>
+                <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
                 <Calendar className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.appointmentsToday}</div>
                 <p className="text-xs text-muted-foreground">
-                  Agendadas para hoje
+                  Scheduled for today
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Esta Semana</CardTitle>
+                <CardTitle className="text-sm font-medium">This Week</CardTitle>
                 <TrendingUp className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.appointmentsThisWeek}</div>
                 <p className="text-xs text-muted-foreground">
-                  Consultas agendadas
+                  Scheduled appointments
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
+                <CardTitle className="text-sm font-medium">Pending</CardTitle>
                 <Clock className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.pendingAppointments}</div>
                 <p className="text-xs text-muted-foreground">
-                  Aguardando confirmação
+                  Awaiting confirmation
                 </p>
               </CardContent>
             </Card>
@@ -233,9 +233,9 @@ export const Dashboard = () => {
         >
           <Card>
             <CardHeader>
-              <CardTitle>Próximas Consultas</CardTitle>
+              <CardTitle>Upcoming Appointments</CardTitle>
               <CardDescription>
-                Suas consultas agendadas para os próximos dias
+                Your scheduled appointments for the coming days
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -265,7 +265,7 @@ export const Dashboard = () => {
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
                           <p className="text-sm font-medium">
-                            {new Date(appointment.date).toLocaleDateString('pt-BR')}
+                            {new Date(appointment.date).toLocaleDateString('en-US')}
                           </p>
                           <p className="text-sm text-muted-foreground">
                             {appointment.time}
@@ -280,7 +280,7 @@ export const Dashboard = () => {
                 <div className="text-center py-8">
                   <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">
-                    Nenhuma consulta agendada no momento.
+                    No appointments scheduled at the moment.
                   </p>
                 </div>
               )}

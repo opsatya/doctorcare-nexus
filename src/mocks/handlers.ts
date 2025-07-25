@@ -8,7 +8,7 @@ export const handlers = [
     
     return HttpResponse.json({
       success: true,
-      message: 'Cadastro realizado com sucesso!',
+      message: 'Registration successful!',
       token: 'fake-jwt-token-12345',
       doctor: {
         id: '1',
@@ -30,11 +30,11 @@ export const handlers = [
     if (body.email === 'teste@example.com' && body.password === '123456') {
       return HttpResponse.json({
         success: true,
-        message: 'Login realizado com sucesso!',
+        message: 'Login successful!',
         token: 'fake-jwt-token-12345',
         doctor: {
           id: '1',
-          name: 'Dr. João Silva',
+          name: 'Dr. John Smith',
           email: 'teste@example.com',
           specialization: 'Cardiologia',
           licenseNumber: '12345-SP',
@@ -45,7 +45,7 @@ export const handlers = [
     
     return HttpResponse.json({
       success: false,
-      message: 'Email ou senha incorretos',
+      message: 'Incorrect email or password',
     }, { status: 401 });
   }),
 
@@ -57,7 +57,7 @@ export const handlers = [
     if (!authHeader || !authHeader.includes('Bearer')) {
       return HttpResponse.json({
         success: false,
-        message: 'Token de acesso inválido',
+        message: 'Invalid access token',
       }, { status: 401 });
     }
     
@@ -65,11 +65,11 @@ export const handlers = [
       success: true,
       doctor: {
         id: '1',
-        name: 'Dr. João Silva',
-        email: 'teste@example.com',
-        specialization: 'Cardiologia',
-        licenseNumber: '12345-SP',
-        phone: '(11) 99999-9999',
+        name: 'Dr. John Smith',
+        email: 'test@example.com',
+        specialization: 'Cardiology',
+        licenseNumber: '12345-NY',
+        phone: '(555) 123-4567',
       },
     });
   }),
