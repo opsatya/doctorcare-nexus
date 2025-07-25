@@ -35,10 +35,10 @@ export const handlers = [
         doctor: {
           id: '1',
           name: 'Dr. John Smith',
-          email: 'teste@example.com',
-          specialization: 'Cardiologia',
-          licenseNumber: '12345-SP',
-          phone: '(11) 99999-9999',
+          email: 'test@example.com',
+          specialization: 'Cardiology',
+          licenseNumber: '12345-NY',
+          phone: '(555) 123-4567',
         },
       });
     }
@@ -82,27 +82,27 @@ export const handlers = [
       appointments: [
         {
           id: '1',
-          patientName: 'Maria Santos',
+          patientName: 'Sarah Johnson',
           date: '2025-07-26',
           time: '09:00',
           status: 'confirmed',
-          type: 'Consulta de rotina',
+          type: 'Routine checkup',
         },
         {
           id: '2',
-          patientName: 'Carlos Oliveira',
+          patientName: 'Michael Brown',
           date: '2025-07-26',
           time: '10:30',
           status: 'pending',
-          type: 'Retorno',
+          type: 'Follow-up',
         },
         {
           id: '3',
-          patientName: 'Ana Lima',
+          patientName: 'Emily Davis',
           date: '2025-07-27',
           time: '14:00',
           status: 'confirmed',
-          type: 'Primeira consulta',
+          type: 'Initial consultation',
         },
       ],
     });

@@ -1,73 +1,97 @@
-# Welcome to your Lovable project
+# DoctorCare Nexus
 
-## Project info
+A modern healthcare management platform designed to streamline doctor-patient interactions and medical practice management.
 
-**URL**: https://lovable.dev/projects/dc326e1c-c1d9-4480-8cf7-35189d1ed7c9
+![DoctorCare Nexus Screenshot](https://via.placeholder.com/1200x600?text=DoctorCare+Nexus+Screenshot)
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- **Doctor Dashboard**: Comprehensive overview of appointments, patients, and practice statistics
+- **Appointment Management**: Schedule, reschedule, and manage patient appointments
+- **Patient Records**: Secure access to patient medical history and records
+- **Responsive Design**: Fully responsive interface for desktop and mobile devices
+- **Secure Authentication**: Protected routes and secure user authentication
+- **Modern UI/UX**: Built with modern design principles and smooth animations
 
-**Use Lovable**
+## 🛠️ Technologies Used
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/dc326e1c-c1d9-4480-8cf7-35189d1ed7c9) and start prompting.
+- **Frontend**: 
+  - React 18 with TypeScript
+  - Vite (Build Tool)
+  - shadcn/ui components
+  - Tailwind CSS
+  - Framer Motion (Animations)
+  - React Hook Form (Form Handling)
+  - Recoil (State Management)
+  - React Router (Routing)
+  - Lucide Icons
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Backend**: 
+  - Mock Service Worker (API Mocking)
+  - Yup (Form Validation)
 
-**Use your preferred IDE**
+## 📦 Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/opsatya/doctorcare-nexus.git
+   cd doctorcare-nexus
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Follow these steps:
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Open in browser**
+   ```
+   http://localhost:5173
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🔐 Authentication
 
-# Step 3: Install the necessary dependencies.
-npm i
+Use the following test credentials to log in:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- **Email**: test@example.com
+- **Password**: password123
+
+## 📂 Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Application pages
+├── hooks/         # Custom React hooks
+├── lib/           # Utility functions and configurations
+├── mocks/         # API mocking setup
+└── assets/        # Static assets (images, icons, etc.)
 ```
 
-**Edit a file directly in GitHub**
+## 🎨 Design System
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The application uses a consistent design system with:
+- Custom color palette
+- Responsive typography
+- Reusable UI components
+- Smooth animations and transitions
 
-**Use GitHub Codespaces**
+## 📝 License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## What technologies are used for this project?
+## 🤝 Contributing
 
-This project is built with:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## ✉️ Contact
 
-## How can I deploy this project?
+For any inquiries, please open an issue on the GitHub repository.
 
-Simply open [Lovable](https://lovable.dev/projects/dc326e1c-c1d9-4480-8cf7-35189d1ed7c9) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Built with ❤️ by [Your Name]

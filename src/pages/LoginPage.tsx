@@ -168,8 +168,8 @@ export const LoginPage = () => {
             {/* Demo credentials */}
             <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm">
               <p className="font-medium text-muted-foreground mb-1">Test credentials:</p>
-              <p className="text-xs text-muted-foreground">Email: sarah.johnson@doctorcare.com</p>
-              <p className="text-xs text-muted-foreground">Password: password123</p>
+              <p className="text-xs text-muted-foreground">Email: teste@example.com</p>
+              <p className="text-xs text-muted-foreground">Password: 123456</p>
             </div>
           </CardContent>
         </Card>

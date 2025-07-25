@@ -37,7 +37,7 @@ export const LandingPage = () => {
                     <Phone className="h-6 w-6 text-primary" />
                     <div>
                       <p className="font-medium">WhatsApp</p>
-                      <p className="text-muted-foreground">(11) 99999-9999</p>
+                      <p className="text-muted-foreground">(+91) 99999-9999</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -52,7 +52,7 @@ export const LandingPage = () => {
                     <div>
                       <p className="font-medium">Address</p>
                       <p className="text-muted-foreground">
-                        123 Health Street - New York, NY
+                        123 Health Street - Maharashtra Pune
                       </p>
                     </div>
                   </div>
