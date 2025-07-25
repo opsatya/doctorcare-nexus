@@ -1,0 +1,107 @@
+{
+  "doctors": [
+    {
+      "id": 1,
+      "name": "Dr. Sarah Johnson",
+      "email": "sarah.johnson@doctorcare.com",
+      "password": "password123",
+      "specialization": "Cardiology",
+      "experience": 10,
+      "rating": 4.9,
+      "availability": ["Monday", "Wednesday", "Friday"],
+      "about": "Experienced cardiologist with expertise in preventive care and advanced cardiac procedures.",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Dr. Michael Chen",
+      "email": "michael.chen@doctorcare.com",
+      "password": "password123",
+      "specialization": "Pediatrics",
+      "experience": 8,
+      "rating": 4.8,
+      "availability": ["Tuesday", "Thursday", "Saturday"],
+      "about": "Pediatric specialist focused on child development and family-centered care.",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Dr. Emily Rodriguez",
+      "email": "emily.rodriguez@doctorcare.com",
+      "password": "password123",
+      "specialization": "Mental Health",
+      "experience": 12,
+      "rating": 4.9,
+      "availability": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+      "about": "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy.",
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "doctorId": 1,
+      "patientName": "John Doe",
+      "patientEmail": "john.doe@email.com",
+      "date": "2025-07-26",
+      "time": "10:00",
+      "status": "pending",
+      "reason": "Regular checkup",
+      "createdAt": "2025-07-25T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "doctorId": 2,
+      "patientName": "Jane Smith",
+      "patientEmail": "jane.smith@email.com",
+      "date": "2025-07-27",
+      "time": "14:30",
+      "status": "confirmed",
+      "reason": "Child vaccination",
+      "createdAt": "2025-07-25T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "doctorId": 3,
+      "patientName": "Robert Johnson",
+      "patientEmail": "robert.johnson@email.com",
+      "date": "2025-07-28",
+      "time": "16:00",
+      "status": "pending",
+      "reason": "Anxiety consultation",
+      "createdAt": "2025-07-25T00:00:00Z"
+    }
+  ],
+  "patients": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@email.com",
+      "phone": "+1-555-0123",
+      "dateOfBirth": "1985-03-15",
+      "address": "123 Main St, New York, NY",
+      "emergencyContact": "Jane Doe - +1-555-0124",
+      "createdAt": "2025-01-15T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "email": "jane.smith@email.com",
+      "phone": "+1-555-0125",
+      "dateOfBirth": "1990-07-22",
+      "address": "456 Oak Ave, Los Angeles, CA",
+      "emergencyContact": "Tom Smith - +1-555-0126",
+      "createdAt": "2025-01-20T00:00:00Z"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@doctorcare.com",
+      "password": "admin123",
+      "role": "admin",
+      "name": "System Administrator",
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ]
+}

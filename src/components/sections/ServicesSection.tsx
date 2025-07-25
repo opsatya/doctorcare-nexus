@@ -4,33 +4,33 @@ import { CheckCircle, Heart, Brain, Shield, Clock, Users } from 'lucide-react';
 const services = [
   {
     icon: Heart,
-    title: 'Cardiologia',
-    description: 'Cuidados especializados para seu coração e sistema cardiovascular.',
+    title: 'Cardiology',
+    description: 'Specialized care for your heart and cardiovascular system.',
   },
   {
     icon: Brain,
-    title: 'Bem-estar mental',
-    description: 'Suporte psicológico e psiquiátrico para sua saúde mental.',
+    title: 'Mental Wellness',
+    description: 'Psychological and psychiatric support for your mental health.',
   },
   {
     icon: Shield,
-    title: 'Pediatria',
-    description: 'Cuidados médicos especializados para crianças e adolescentes.',
+    title: 'Pediatrics',
+    description: 'Specialized medical care for children and adolescents.',
   },
   {
     icon: Clock,
-    title: 'Consultas emergenciais',
-    description: 'Atendimento rápido para situações médicas urgentes.',
+    title: 'Emergency Consultations',
+    description: 'Quick care for urgent medical situations.',
   },
   {
     icon: Users,
-    title: 'Medicina geral',
-    description: 'Atendimento clínico geral para toda a família.',
+    title: 'General Medicine',
+    description: 'General clinical care for the whole family.',
   },
   {
     icon: CheckCircle,
-    title: 'Exames preventivos',
-    description: 'Check-ups regulares para manter sua saúde em dia.',
+    title: 'Preventive Exams',
+    description: 'Regular check-ups to keep your health on track.',
   },
 ];
 
@@ -47,7 +47,7 @@ export const ServicesSection = () => {
             transition={{ duration: 0.6 }}
             className="text-3xl md:text-4xl font-bold mb-4"
           >
-            Nossos serviços
+            Our Services
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -56,8 +56,8 @@ export const ServicesSection = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Oferecemos uma ampla gama de serviços médicos para cuidar de você e sua família
-            com a excelência que vocês merecem.
+            We offer a wide range of medical services to care for you and your family
+            with the excellence you deserve.
           </motion.p>
         </div>
 
@@ -98,7 +98,7 @@ export const ServicesSection = () => {
           className="text-center mt-12"
         >
           <p className="text-primary font-medium text-lg">
-            ✓ Consultas presenciais e online disponíveis
+            ✓ In-person and online consultations available
           </p>
         </motion.div>
       </div>

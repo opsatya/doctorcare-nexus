@@ -68,11 +68,11 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
             >
-              Assistência médica{' '}
+              Simplified{' '}
               <span className="text-primary bg-gradient-primary bg-clip-text text-transparent">
-                simplificada
+                healthcare
               </span>{' '}
-              para todos
+              for everyone
             </motion.h1>
 
             <motion.p
@@ -81,9 +81,9 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg"
             >
-              Conectamos você com os melhores profissionais de saúde.
-              Agende consultas, gerencie seu histórico médico e cuide da sua saúde
-              de forma inteligente e acessível.
+              We connect you with the best healthcare professionals.
+              Schedule appointments, manage your medical history, and take care of your health
+              intelligently and affordably.
             </motion.p>
 
             <motion.div
@@ -97,7 +97,7 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
                 className="btn-hero group"
                 size="lg"
               >
-                Agende sua consulta
+                Schedule Appointment
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
@@ -106,7 +106,7 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
                 size="lg"
                 className="btn-secondary"
               >
-                Saiba mais
+                Learn More
               </Button>
             </motion.div>
 
@@ -118,15 +118,15 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
             >
               <div className="text-center">
                 <div className="text-2xl md:text-3xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Médicos cadastrados</div>
+                <div className="text-sm text-muted-foreground">Registered Doctors</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl md:text-3xl font-bold text-primary">10k+</div>
-                <div className="text-sm text-muted-foreground">Consultas realizadas</div>
+                <div className="text-sm text-muted-foreground">Completed Consultations</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl md:text-3xl font-bold text-primary">98%</div>
-                <div className="text-sm text-muted-foreground">Satisfação dos pacientes</div>
+                <div className="text-sm text-muted-foreground">Patient Satisfaction</div>
               </div>
             </motion.div>
           </motion.div>
@@ -137,7 +137,7 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
               <img
                 ref={imageRef}
                 src={doctorHero}
-                alt="Médico profissional"
+                alt="Professional Doctor"
                 className="w-full max-w-lg mx-auto rounded-2xl shadow-[var(--shadow-card)]"
               />
               
@@ -150,7 +150,7 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
               >
                 <div className="text-center">
                   <div className="text-sm font-bold">4.9★</div>
-                  <div className="text-xs">Avaliação</div>
+                  <div className="text-xs">Rating</div>
                 </div>
               </motion.div>
 
@@ -161,7 +161,7 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
                 className="absolute -bottom-4 -left-4 bg-card border border-border p-4 rounded-xl shadow-lg"
               >
                 <div className="text-center">
-                  <div className="text-sm font-semibold text-primary">Disponível</div>
+                  <div className="text-sm font-semibold text-primary">Available</div>
                   <div className="text-xs text-muted-foreground">24/7</div>
                 </div>
               </motion.div>

@@ -99,7 +99,7 @@ export const SignupPage = () => {
             className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar ao início
+            Back to Home
           </Link>
           
           <div className="flex items-center space-x-2 mb-4">
@@ -112,9 +112,9 @@ export const SignupPage = () => {
 
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Cadastro de Médico</CardTitle>
+            <CardTitle className="text-2xl font-bold">Doctor Registration</CardTitle>
             <CardDescription>
-              Crie sua conta para começar a usar nossa plataforma
+              Create your account to start using our platform
             </CardDescription>
           </CardHeader>
           
@@ -122,11 +122,11 @@ export const SignupPage = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome completo</Label>
+                  <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
                     {...register('name')}
-                    placeholder="Dr. João Silva"
+                    placeholder="Dr. John Smith"
                   />
                   {errors.name && (
                     <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -139,7 +139,7 @@ export const SignupPage = () => {
                     id="email"
                     type="email"
                     {...register('email')}
-                    placeholder="joao@exemplo.com"
+                    placeholder="john@example.com"
                   />
                   {errors.email && (
                     <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -149,11 +149,11 @@ export const SignupPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="specialization">Especialização</Label>
+                  <Label htmlFor="specialization">Specialization</Label>
                   <Input
                     id="specialization"
                     {...register('specialization')}
-                    placeholder="Cardiologia"
+                    placeholder="Cardiology"
                   />
                   {errors.specialization && (
                     <p className="text-sm text-destructive">{errors.specialization.message}</p>
@@ -161,11 +161,11 @@ export const SignupPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="licenseNumber">CRM</Label>
+                  <Label htmlFor="licenseNumber">License Number</Label>
                   <Input
                     id="licenseNumber"
                     {...register('licenseNumber')}
-                    placeholder="12345-SP"
+                    placeholder="12345-NY"
                   />
                   {errors.licenseNumber && (
                     <p className="text-sm text-destructive">{errors.licenseNumber.message}</p>
@@ -174,11 +174,11 @@ export const SignupPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
+                <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   {...register('phone')}
-                  placeholder="(11) 99999-9999"
+                  placeholder="+1 (555) 123-4567"
                 />
                 {errors.phone && (
                   <p className="text-sm text-destructive">{errors.phone.message}</p>
@@ -187,13 +187,13 @@ export const SignupPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha</Label>
+                  <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       {...register('password')}
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Minimum 6 characters"
                     />
                     <button
                       type="button"
@@ -209,13 +209,13 @@ export const SignupPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirmar senha</Label>
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative">
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
                       {...register('confirmPassword')}
-                      placeholder="Confirme sua senha"
+                      placeholder="Confirm your password"
                     />
                     <button
                       type="button"
@@ -236,14 +236,14 @@ export const SignupPage = () => {
                 className="w-full btn-hero"
                 disabled={isLoading}
               >
-                {isLoading ? 'Criando conta...' : 'Criar conta'}
+                {isLoading ? 'Creating account...' : 'Create Account'}
               </Button>
             </form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Já possui uma conta? </span>
+              <span className="text-muted-foreground">Already have an account? </span>
               <Link to="/login" className="text-primary hover:underline font-medium">
-                Fazer login
+                Sign In
               </Link>
             </div>
           </CardContent>

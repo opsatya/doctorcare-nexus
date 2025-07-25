@@ -93,7 +93,7 @@ export const LoginPage = () => {
             className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar ao início
+            Back to Home
           </Link>
           
           <div className="flex items-center space-x-2 mb-4">
@@ -108,7 +108,7 @@ export const LoginPage = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Login</CardTitle>
             <CardDescription>
-              Entre na sua conta para acessar o painel médico
+              Sign in to your account to access the medical dashboard
             </CardDescription>
           </CardHeader>
           
@@ -120,7 +120,7 @@ export const LoginPage = () => {
                   id="email"
                   type="email"
                   {...register('email')}
-                  placeholder="seu@email.com"
+                  placeholder="your@email.com"
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -128,13 +128,13 @@ export const LoginPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     {...register('password')}
-                    placeholder="Sua senha"
+                    placeholder="Your password"
                   />
                   <button
                     type="button"
@@ -154,22 +154,22 @@ export const LoginPage = () => {
                 className="w-full btn-hero"
                 disabled={isLoading}
               >
-                {isLoading ? 'Entrando...' : 'Entrar'}
+                {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Ainda não possui conta? </span>
+              <span className="text-muted-foreground">Don't have an account? </span>
               <Link to="/signup" className="text-primary hover:underline font-medium">
-                Criar conta
+                Create Account
               </Link>
             </div>
 
             {/* Demo credentials */}
             <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm">
-              <p className="font-medium text-muted-foreground mb-1">Credenciais de teste:</p>
-              <p className="text-xs text-muted-foreground">Email: teste@example.com</p>
-              <p className="text-xs text-muted-foreground">Senha: 123456</p>
+              <p className="font-medium text-muted-foreground mb-1">Test credentials:</p>
+              <p className="text-xs text-muted-foreground">Email: sarah.johnson@doctorcare.com</p>
+              <p className="text-xs text-muted-foreground">Password: password123</p>
             </div>
           </CardContent>
         </Card>

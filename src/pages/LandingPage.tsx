@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { ServicesSection } from '@/components/sections/ServicesSection';
+import { AboutSection } from '@/components/sections/AboutSection';
+import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
 import { Instagram, Facebook, Youtube, Phone, Mail, MapPin } from 'lucide-react';
 
 export const LandingPage = () => {
@@ -18,7 +20,9 @@ export const LandingPage = () => {
       
       <main>
         <HeroSection onScheduleClick={handleScheduleClick} />
+        <AboutSection />
         <ServicesSection />
+        <TestimonialsSection />
         
         {/* Contact Section */}
         <section id="contact" className="py-20 bg-background">
@@ -26,7 +30,7 @@ export const LandingPage = () => {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                  Entre em contato
+                  Get in Touch
                 </h2>
                 <div className="space-y-6">
                   <div className="flex items-center space-x-4">
@@ -46,9 +50,9 @@ export const LandingPage = () => {
                   <div className="flex items-center space-x-4">
                     <MapPin className="h-6 w-6 text-primary" />
                     <div>
-                      <p className="font-medium">Endereço</p>
+                      <p className="font-medium">Address</p>
                       <p className="text-muted-foreground">
-                        R. da Saúde, 150 - São Paulo, SP
+                        123 Health Street - New York, NY
                       </p>
                     </div>
                   </div>
@@ -60,7 +64,7 @@ export const LandingPage = () => {
                   onClick={handleScheduleClick}
                   className="btn-hero mb-8"
                 >
-                  AGENDAR CONSULTA
+                  SCHEDULE APPOINTMENT
                 </button>
               </div>
             </div>
@@ -75,7 +79,7 @@ export const LandingPage = () => {
             <div className="text-center md:text-left">
               <p className="font-medium">DoctorCare</p>
               <p className="text-sm opacity-80">
-                © 2025 DoctorCare. Todos os direitos reservados.
+                © 2025 DoctorCare. All rights reserved.
               </p>
             </div>
             

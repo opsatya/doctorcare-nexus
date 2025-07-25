@@ -11,10 +11,10 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuItems = [
-    { label: 'Início', href: '#home' },
-    { label: 'Sobre', href: '#about' },
-    { label: 'Serviços', href: '#services' },
-    { label: 'Depoimentos', href: '#testimonials' },
+    { label: 'Home', href: '#home' },
+    { label: 'About', href: '#about' },
+    { label: 'Services', href: '#services' },
+    { label: 'Testimonials', href: '#testimonials' },
   ];
 
   return (
@@ -36,6 +36,10 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
                 key={item.label}
                 href={item.href}
                 className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
                 {item.label}
               </a>
@@ -48,7 +52,7 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
               onClick={onScheduleClick}
               className="btn-hero"
             >
-              AGENDAR CONSULTA
+              SCHEDULE APPOINTMENT
             </Button>
           </div>
 
@@ -79,7 +83,13 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
                   key={item.label}
                   href={item.href}
                   className="block text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsMenuOpen(false);
+                    setTimeout(() => {
+                      document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
                 >
                   {item.label}
                 </a>
@@ -91,7 +101,7 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
                 }}
                 className="btn-hero w-full mt-4"
               >
-                AGENDAR CONSULTA
+                SCHEDULE APPOINTMENT
               </Button>
             </nav>
           </motion.div>
