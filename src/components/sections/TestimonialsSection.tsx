@@ -3,21 +3,21 @@ import { Star, Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Sarah Johnson',
+    name: 'Avinash Singh',
     role: 'Working Mother',
     content: 'DoctorCare has been a lifesaver for our family. The convenience of online consultations and the quality of care we receive is exceptional.',
     rating: 5,
     image: '/placeholder.svg',
   },
   {
-    name: 'Michael Chen',
+    name: 'Vedant Dhore',
     role: 'Business Executive',
     content: 'As someone with a busy schedule, having access to quality healthcare anytime is invaluable. The doctors are professional and caring.',
     rating: 5,
     image: '/placeholder.svg',
   },
   {
-    name: 'Emily Rodriguez',
+    name: 'Satya',
     role: 'Student',
     content: 'The mental health support I received through DoctorCare helped me during a difficult time. Highly recommend their services.',
     rating: 5,
