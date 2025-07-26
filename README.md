@@ -94,4 +94,4 @@ For any inquiries, please open an issue on the GitHub repository.
 
 ---
 
-Built with ❤️ by [Your Name]
+Built with ❤️ by Satya
