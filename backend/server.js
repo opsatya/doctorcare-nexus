@@ -111,6 +111,74 @@ server.post('/api/doctor/signup', (req, res) => {
   });
 });
 
+// Get single doctor
+server.get('/api/doctors/:id', (req, res) => {
+  const doctorId = parseInt(req.params.id);
+  const doctor = db.doctors.find(d => d.id === doctorId);
+  
+  if (doctor) {
+    res.json({ ...doctor, password: undefined });
+  } else {
+    res.status(404).json({ error: 'Doctor not found' });
+  }
+});
+
+// Create appointment
+server.post('/api/appointments', (req, res) => {
+  const { patientName, email, phone, doctorId, date, time, reason } = req.body;
+  
+  // Find doctor
+  const doctor = db.doctors.find(d => d.id === doctorId);
+  if (!doctor) {
+    return res.status(404).json({ error: 'Doctor not found' });
+  }
+  
+  const newAppointment = {
+    id: Date.now(), // Simple ID generation
+    patientName,
+    email,
+    phone,
+    doctorId,
+    doctorName: doctor.name,
+    specialization: doctor.specialization,
+    date,
+    time,
+    reason,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+  
+  // Add to database
+  if (!db.appointments) {
+    db.appointments = [];
+  }
+  db.appointments.push(newAppointment);
+  
+  // Save to file
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+  
+  res.json(newAppointment);
+});
+
+// Update appointment status
+server.patch('/api/appointments/:id', (req, res) => {
+  const appointmentId = parseInt(req.params.id);
+  const { status } = req.body;
+  
+  const appointmentIndex = db.appointments.findIndex(a => a.id === appointmentId);
+  
+  if (appointmentIndex === -1) {
+    return res.status(404).json({ error: 'Appointment not found' });
+  }
+  
+  db.appointments[appointmentIndex].status = status;
+  
+  // Save to file
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+  
+  res.json(db.appointments[appointmentIndex]);
+});
+
 // Use default middleware
 server.use(middlewares);
 

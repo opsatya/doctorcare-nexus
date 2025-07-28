@@ -6,11 +6,15 @@
       "email": "sarah.johnson@doctorcare.com",
       "password": "password123",
       "specialization": "Cardiology",
-      "experience": 10,
+      "experience": 15,
       "rating": 4.9,
+      "phone": "+91-99887-76543",
+      "consultationFee": 1200,
+      "location": "Delhi, India",
+      "nextAvailable": "Today 3 PM",
       "availability": ["Monday", "Wednesday", "Friday"],
       "about": "Experienced cardiologist with expertise in preventive care and advanced cardiac procedures.",
-      "createdAt": "2025-01-01T00:00:00Z"
+      "createdAt": "2025-01-05T00:00:00Z"
     },
     {
       "id": 2,
@@ -18,11 +22,15 @@
       "email": "michael.chen@doctorcare.com",
       "password": "password123",
       "specialization": "Pediatrics",
-      "experience": 8,
+      "experience": 10,
       "rating": 4.8,
+      "phone": "+91-98765-43210",
+      "consultationFee": 800,
+      "location": "Mumbai, India",
+      "nextAvailable": "Tomorrow",
       "availability": ["Tuesday", "Thursday", "Saturday"],
       "about": "Pediatric specialist focused on child development and family-centered care.",
-      "createdAt": "2025-01-01T00:00:00Z"
+      "createdAt": "2025-01-10T00:00:00Z"
     },
     {
       "id": 3,
@@ -32,44 +40,13 @@
       "specialization": "Mental Health",
       "experience": 12,
       "rating": 4.9,
+      "phone": "+91-97654-32109",
+      "consultationFee": 1000,
+      "location": "Bangalore, India",
+      "nextAvailable": "Today 5 PM",
       "availability": ["Monday", "Tuesday", "Wednesday", "Thursday"],
       "about": "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy.",
       "createdAt": "2025-01-01T00:00:00Z"
-    }
-  ],
-  "appointments": [
-    {
-      "id": 1,
-      "doctorId": 1,
-      "patientName": "John Doe",
-      "patientEmail": "john.doe@email.com",
-      "date": "2025-07-26",
-      "time": "10:00",
-      "status": "pending",
-      "reason": "Regular checkup",
-      "createdAt": "2025-07-25T00:00:00Z"
-    },
-    {
-      "id": 2,
-      "doctorId": 2,
-      "patientName": "Jane Smith",
-      "patientEmail": "jane.smith@email.com",
-      "date": "2025-07-27",
-      "time": "14:30",
-      "status": "confirmed",
-      "reason": "Child vaccination",
-      "createdAt": "2025-07-25T00:00:00Z"
-    },
-    {
-      "id": 3,
-      "doctorId": 3,
-      "patientName": "Robert Johnson",
-      "patientEmail": "robert.johnson@email.com",
-      "date": "2025-07-28",
-      "time": "16:00",
-      "status": "pending",
-      "reason": "Anxiety consultation",
-      "createdAt": "2025-07-25T00:00:00Z"
     }
   ],
   "patients": [
@@ -94,6 +71,50 @@
       "address": "456 Oak Ave, Los Angeles, CA",
       "emergencyContact": "Tom Smith - +1-555-0126",
       "createdAt": "2025-01-20T00:00:00Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "doctorId": 1,
+      "doctorName": "Dr. Sarah Johnson",
+      "specialization": "Cardiology",
+      "patientName": "John Doe",
+      "email": "john.doe@email.com",
+      "phone": "+1-555-0123",
+      "date": "2025-07-26",
+      "time": "10:00 AM",
+      "status": "pending",
+      "reason": "Regular checkup",
+      "createdAt": "2025-07-25T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "doctorId": 2,
+      "doctorName": "Dr. Michael Chen",
+      "specialization": "Pediatrics",
+      "patientName": "Jane Smith",
+      "email": "jane.smith@email.com",
+      "phone": "+1-555-0125",
+      "date": "2025-07-27",
+      "time": "2:30 PM",
+      "status": "confirmed",
+      "reason": "Child vaccination",
+      "createdAt": "2025-07-25T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "doctorId": 3,
+      "doctorName": "Dr. Emily Rodriguez",
+      "specialization": "Mental Health",
+      "patientName": "Robert Johnson",
+      "email": "robert.johnson@email.com",
+      "phone": "+1-555-0127",
+      "date": "2025-07-28",
+      "time": "4:00 PM",
+      "status": "pending",
+      "reason": "Anxiety consultation",
+      "createdAt": "2025-07-25T00:00:00Z"
     }
   ],
   "users": [

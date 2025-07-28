@@ -15,6 +15,7 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
     { label: 'About', href: '#about' },
     { label: 'Services', href: '#services' },
     { label: 'Testimonials', href: '#testimonials' },
+    { label: 'Find Doctors', href: '/doctors' },
   ];
 
   return (
@@ -37,8 +38,12 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
                 href={item.href}
                 className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
                 onClick={(e) => {
-                  e.preventDefault();
-                  document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
+                  if (item.href.startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    window.location.href = item.href;
+                  }
                 }}
               >
                 {item.label}
@@ -84,11 +89,15 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
                   href={item.href}
                   className="block text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
                   onClick={(e) => {
-                    e.preventDefault();
                     setIsMenuOpen(false);
-                    setTimeout(() => {
-                      document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
+                    if (item.href.startsWith('#')) {
+                      e.preventDefault();
+                      setTimeout(() => {
+                        document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
+                    } else {
+                      window.location.href = item.href;
+                    }
                   }}
                 >
                   {item.label}
