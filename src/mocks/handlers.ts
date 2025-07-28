@@ -1,7 +1,171 @@
 import { http, HttpResponse } from 'msw';
 
 export const handlers = [
-  http.post('/api/doctor/signup', async ({ request }) => {
+  // Doctors API
+  http.get('http://localhost:3001/api/doctors', async () => {
+    console.log('🔧 MSW: Handling GET /api/doctors');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return HttpResponse.json([
+      {
+        id: 1,
+        name: "Dr. Sarah Johnson",
+        specialization: "Cardiology",
+        experience: 15,
+        rating: 4.9,
+        location: "Delhi, India",
+        consultationFee: 1200,
+        nextAvailable: "Today 3 PM"
+      },
+      {
+        id: 2,
+        name: "Dr. Michael Chen",
+        specialization: "Pediatrics",
+        experience: 10,
+        rating: 4.8,
+        location: "Mumbai, India",
+        consultationFee: 800,
+        nextAvailable: "Tomorrow"
+      },
+      {
+        id: 3,
+        name: "Dr. Emily Rodriguez",
+        specialization: "Mental Health",
+        experience: 12,
+        rating: 4.9,
+        location: "Bangalore, India",
+        consultationFee: 1000,
+        nextAvailable: "Today 5 PM"
+      }
+    ]);
+  }),
+
+  http.get('http://localhost:3001/api/doctors/:id', async ({ params }) => {
+    console.log('🔧 MSW: Handling GET /api/doctors/:id', params.id);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const doctors = [
+      {
+        id: 1,
+        name: "Dr. Sarah Johnson",
+        specialization: "Cardiology",
+        experience: 15,
+        rating: 4.9,
+        location: "Delhi, India",
+        consultationFee: 1200,
+        nextAvailable: "Today 3 PM",
+        about: "Experienced cardiologist with expertise in preventive care and advanced cardiac procedures."
+      },
+      {
+        id: 2,
+        name: "Dr. Michael Chen",
+        specialization: "Pediatrics",
+        experience: 10,
+        rating: 4.8,
+        location: "Mumbai, India",
+        consultationFee: 800,
+        nextAvailable: "Tomorrow",
+        about: "Pediatric specialist focused on child development and family-centered care."
+      },
+      {
+        id: 3,
+        name: "Dr. Emily Rodriguez",
+        specialization: "Mental Health",
+        experience: 12,
+        rating: 4.9,
+        location: "Bangalore, India",
+        consultationFee: 1000,
+        nextAvailable: "Today 5 PM",
+        about: "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy."
+      }
+    ];
+    
+    const doctor = doctors.find(d => d.id === parseInt(params.id as string));
+    if (doctor) {
+      return HttpResponse.json(doctor);
+    } else {
+      return HttpResponse.json({ error: 'Doctor not found' }, { status: 404 });
+    }
+  }),
+
+  // Appointments API
+  http.get('http://localhost:3001/api/appointments', async () => {
+    console.log('🔧 MSW: Handling GET /api/appointments');
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    return HttpResponse.json([
+      {
+        id: 1,
+        doctorId: 1,
+        doctorName: "Dr. Sarah Johnson",
+        specialization: "Cardiology",
+        patientName: "John Doe",
+        email: "john.doe@email.com",
+        phone: "+1-555-0123",
+        date: "2025-07-26",
+        time: "10:00 AM",
+        status: "pending",
+        reason: "Regular checkup"
+      },
+      {
+        id: 2,
+        doctorId: 2,
+        doctorName: "Dr. Michael Chen",
+        specialization: "Pediatrics",
+        patientName: "Jane Smith",
+        email: "jane.smith@email.com",
+        phone: "+1-555-0125",
+        date: "2025-07-27",
+        time: "2:30 PM",
+        status: "confirmed",
+        reason: "Child vaccination"
+      }
+    ]);
+  }),
+
+  http.post('http://localhost:3001/api/appointments', async ({ request }) => {
+    console.log('🔧 MSW: Handling POST /api/appointments');
+    const body = await request.json() as any;
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    const newAppointment = {
+      id: Date.now(),
+      ...body,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    
+    return HttpResponse.json(newAppointment);
+  }),
+
+  // Patient Login
+  http.post('http://localhost:3001/api/patient/login', async ({ request }) => {
+    console.log('🔧 MSW: Handling POST /api/patient/login');
+    const body = await request.json() as any;
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Mock patient credentials
+    if (body.email === 'patient@example.com' && body.password === '123456') {
+      return HttpResponse.json({
+        success: true,
+        message: 'Login successful!',
+        token: 'fake-jwt-token-patient-12345',
+        user: {
+          id: '1',
+          name: 'John Doe',
+          email: 'patient@example.com',
+          phone: '+1-555-0123',
+        },
+      });
+    }
+    
+    return HttpResponse.json({
+      success: false,
+      message: 'Invalid credentials',
+    }, { status: 401 });
+  }),
+
+  http.post('http://localhost:3001/api/doctor/signup', async ({ request }) => {
     const body = await request.json() as any;
     
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -21,7 +185,7 @@ export const handlers = [
     });
   }),
 
-  http.post('/api/doctor/login', async ({ request }) => {
+  http.post('http://localhost:3001/api/doctor/login', async ({ request }) => {
     const body = await request.json() as any;
     
     await new Promise(resolve => setTimeout(resolve, 800));

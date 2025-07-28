@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { motion } from 'framer-motion';
@@ -27,10 +27,19 @@ export const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userType, setUserType] = useState<'patient' | 'doctor'>('doctor');
   
   const navigate = useNavigate();
   const { toast } = useToast();
   const setAuth = useSetRecoilState(authState);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'patient' || type === 'doctor') {
+      setUserType(type);
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -112,7 +121,9 @@ export const SignupPage = () => {
 
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Doctor Registration</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              {userType === 'patient' ? 'Patient Registration' : 'Doctor Registration'}
+            </CardTitle>
             <CardDescription>
               Create your account to start using our platform
             </CardDescription>

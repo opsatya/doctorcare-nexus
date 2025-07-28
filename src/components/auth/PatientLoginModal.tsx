@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { patientLoginSchema, doctorLoginSchema } from '@/lib/validation/schemas';
-import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogOverlay, DialogTitle } from '@/components/ui/dialog';
 
 interface LoginFormData {
   email: string;
@@ -19,14 +19,24 @@ interface LoginFormData {
 interface PatientLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialLoginType?: 'patient' | 'doctor';
 }
 
-export const PatientLoginModal = ({ isOpen, onClose }: PatientLoginModalProps) => {
-  const [loginType, setLoginType] = useState<'patient' | 'doctor'>('patient');
+export const PatientLoginModal = ({ isOpen, onClose, initialLoginType = 'patient' }: PatientLoginModalProps) => {
+  const [loginType, setLoginType] = useState<'patient' | 'doctor'>(initialLoginType);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const { toast } = useToast();
+
+  // Update login type when modal opens with different initial type
+  useEffect(() => {
+    if (isOpen) {
+      setLoginType(initialLoginType);
+      reset();
+      setShowPassword(false);
+    }
+  }, [isOpen, initialLoginType]);
 
   const {
     register,
@@ -95,6 +105,9 @@ export const PatientLoginModal = ({ isOpen, onClose }: PatientLoginModalProps) =
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="bg-black/50" />
       <DialogContent className="max-w-md mx-auto bg-background border-0 shadow-[var(--shadow-card)]">
+        <DialogTitle className="sr-only">
+          {loginType === 'patient' ? 'Patient Login' : 'Doctor Login'}
+        </DialogTitle>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -204,8 +217,11 @@ export const PatientLoginModal = ({ isOpen, onClose }: PatientLoginModalProps) =
 
               <div className="mt-4 text-center text-sm">
                 <span className="text-muted-foreground">Don't have an account? </span>
-                <button 
-                  onClick={onClose}
+                <button
+                  onClick={() => {
+                    onClose();
+                    window.location.href = '/signup';
+                  }}
                   className="text-primary hover:underline font-medium"
                 >
                   Sign up
@@ -213,13 +229,22 @@ export const PatientLoginModal = ({ isOpen, onClose }: PatientLoginModalProps) =
               </div>
 
               {/* Demo credentials */}
-              {loginType === 'doctor' && (
-                <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm">
-                  <p className="font-medium text-muted-foreground mb-1">Demo Doctor:</p>
-                  <p className="text-xs text-muted-foreground">Email: sarah.johnson@doctorcare.com</p>
-                  <p className="text-xs text-muted-foreground">Password: password123</p>
-                </div>
-              )}
+              <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm">
+                <p className="font-medium text-muted-foreground mb-1">
+                  {loginType === 'doctor' ? 'Demo Doctor:' : 'Demo Patient:'}
+                </p>
+                {loginType === 'doctor' ? (
+                  <>
+                    <p className="text-xs text-muted-foreground">Email: teste@example.com</p>
+                    <p className="text-xs text-muted-foreground">Password: 123456</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs text-muted-foreground">Email: patient@example.com</p>
+                    <p className="text-xs text-muted-foreground">Password: 123456</p>
+                  </>
+                )}
+              </div>
             </CardContent>
           </Card>
         </motion.div>

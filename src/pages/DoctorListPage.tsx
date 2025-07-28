@@ -34,13 +34,20 @@ export const DoctorListPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/doctors');
       const data = await response.json();
-      setDoctors(data);
+      
+      // Ensure we always set an array
+      if (Array.isArray(data)) {
+        setDoctors(data);
+      } else {
+        setDoctors([]);
+      }
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to load doctors',
         variant: 'destructive',
       });
+      setDoctors([]);
     } finally {
       setLoading(false);
     }

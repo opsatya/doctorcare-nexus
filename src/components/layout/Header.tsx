@@ -57,7 +57,7 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
               onClick={onScheduleClick}
               className="btn-hero"
             >
-              DOCTOR LOGIN
+              Schedule Appointment
             </Button>
           </div>
 
@@ -110,7 +110,7 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
                 }}
                 className="btn-hero w-full mt-4"
               >
-                DOCTOR LOGIN
+                Schedule Appointment
               </Button>
             </nav>
           </motion.div>

@@ -11,8 +11,15 @@ import { Instagram, Facebook, Youtube, Phone, Mail, MapPin } from 'lucide-react'
 export const LandingPage = () => {
   const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginModalType, setLoginModalType] = useState<'patient' | 'doctor'>('patient');
 
   const handleScheduleClick = () => {
+    setLoginModalType('patient');
+    setIsLoginModalOpen(true);
+  };
+
+  const handleDoctorLogin = () => {
+    setLoginModalType('doctor');
     setIsLoginModalOpen(true);
   };
 
@@ -61,10 +68,17 @@ export const LandingPage = () => {
                 </div>
               </div>
               
-              <div className="text-center lg:text-right">
+              <div className="text-center lg:text-right space-y-4">
                 <button
-                  onClick={() => navigate('/login')}
-                  className="btn-secondary mb-8"
+                  onClick={handleScheduleClick}
+                  className="btn-hero mb-4 w-full sm:w-auto"
+                >
+                  Schedule Appointment
+                </button>
+                <br />
+                <button
+                  onClick={handleDoctorLogin}
+                  className="btn-secondary w-full sm:w-auto"
                 >
                   Doctor Login
                 </button>
@@ -94,9 +108,10 @@ export const LandingPage = () => {
         </div>
       </footer>
 
-      <PatientLoginModal 
-        isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)} 
+      <PatientLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        initialLoginType={loginModalType}
       />
     </div>
   );
