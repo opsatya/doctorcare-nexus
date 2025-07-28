@@ -38,6 +38,16 @@ export const doctorLoginSchema = yup.object().shape({
     .required('Password is required'),
 });
 
+export const patientLoginSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email('Invalid email')
+    .required('Email is required'),
+  password: yup
+    .string()
+    .required('Password is required'),
+});
+
 export const profileUpdateSchema = yup.object().shape({
   name: yup
     .string()

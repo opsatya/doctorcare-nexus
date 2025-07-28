@@ -5,13 +5,15 @@ import { HeroSection } from '@/components/sections/HeroSection';
 import { ServicesSection } from '@/components/sections/ServicesSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
+import { PatientLoginModal } from '@/components/auth/PatientLoginModal';
 import { Instagram, Facebook, Youtube, Phone, Mail, MapPin } from 'lucide-react';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleScheduleClick = () => {
-    navigate('/signup');
+    setIsLoginModalOpen(true);
   };
 
   return (
@@ -61,10 +63,10 @@ export const LandingPage = () => {
               
               <div className="text-center lg:text-right">
                 <button
-                  onClick={handleScheduleClick}
-                  className="btn-hero mb-8"
+                  onClick={() => navigate('/login')}
+                  className="btn-secondary mb-8"
                 >
-                  DOCTOR LOGIN
+                  Doctor Login
                 </button>
               </div>
             </div>
@@ -91,6 +93,11 @@ export const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      <PatientLoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </div>
   );
 };
