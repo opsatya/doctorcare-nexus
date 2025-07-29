@@ -10,7 +10,9 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const auth = useRecoilValue(authState);
 
-  if (!auth.isAuthenticated) {
+  // Only redirect if we're sure the user is not authenticated
+  // This prevents race conditions during auth state hydration
+  if (!auth.isAuthenticated || (!auth.doctor && !auth.patient)) {
     return <Navigate to="/login" replace />;
   }
 

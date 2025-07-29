@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSetRecoilState } from 'recoil';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, X, Stethoscope, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { patientLoginSchema, doctorLoginSchema } from '@/lib/validation/schemas';
+import { authState } from '@/lib/recoil/atoms';
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from '@/components/ui/dialog';
 
 interface LoginFormData {
@@ -28,6 +31,8 @@ export const PatientLoginModal = ({ isOpen, onClose, initialLoginType = 'patient
   const [isLoading, setIsLoading] = useState(false);
   
   const { toast } = useToast();
+  const setAuth = useSetRecoilState(authState);
+  const navigate = useNavigate();
 
   // Update login type when modal opens with different initial type
   useEffect(() => {
@@ -69,6 +74,29 @@ export const PatientLoginModal = ({ isOpen, onClose, initialLoginType = 'patient
       const result = await response.json();
 
       if (response.ok) {
+        // Set authentication state
+        if (loginType === 'doctor') {
+          const authData = {
+            isAuthenticated: true,
+            doctor: result.doctor,
+            patient: null,
+            token: result.token,
+          };
+          setAuth(authData);
+          // Persist to localStorage
+          localStorage.setItem('doctorcare_auth', JSON.stringify(authData));
+        } else {
+          // For patients
+          const authData = {
+            isAuthenticated: true,
+            doctor: null,
+            patient: result.user,
+            token: result.token,
+          };
+          setAuth(authData);
+          localStorage.setItem('doctorcare_patient_auth', JSON.stringify(authData));
+        }
+        
         toast({
           title: 'Login successful!',
           description: `Welcome back, ${result.user?.name || result.doctor?.name}`,
@@ -76,13 +104,14 @@ export const PatientLoginModal = ({ isOpen, onClose, initialLoginType = 'patient
         
         onClose();
         
-        // Navigate based on login type
-        if (loginType === 'doctor') {
-          window.location.href = '/dashboard';
-        } else {
-          // Navigate to patient dashboard (to be created)
-          window.location.href = '/patient-dashboard';
-        }
+        // Use setTimeout to ensure modal closes and state updates before navigation
+        setTimeout(() => {
+          if (loginType === 'doctor') {
+            navigate('/dashboard');
+          } else {
+            navigate('/patient-dashboard');
+          }
+        }, 100);
       } else {
         toast({
           title: 'Login error',
@@ -220,7 +249,7 @@ export const PatientLoginModal = ({ isOpen, onClose, initialLoginType = 'patient
                 <button
                   onClick={() => {
                     onClose();
-                    window.location.href = '/signup';
+                    navigate(`/signup?type=${loginType}`);
                   }}
                   className="text-primary hover:underline font-medium"
                 >

@@ -1,17 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import { Header } from '@/components/layout/Header';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { ServicesSection } from '@/components/sections/ServicesSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
 import { PatientLoginModal } from '@/components/auth/PatientLoginModal';
+import { authState } from '@/lib/recoil/atoms';
 import { Instagram, Facebook, Youtube, Phone, Mail, MapPin } from 'lucide-react';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
+  const auth = useRecoilValue(authState);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginModalType, setLoginModalType] = useState<'patient' | 'doctor'>('patient');
+
+  // Redirect authenticated users to their respective dashboards
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      if (auth.doctor) {
+        navigate('/dashboard');
+      } else if (auth.patient) {
+        navigate('/patient-dashboard');
+      }
+    }
+  }, [auth, navigate]);
 
   const handleScheduleClick = () => {
     setLoginModalType('patient');
@@ -76,12 +90,6 @@ export const LandingPage = () => {
                   Schedule Appointment
                 </button>
                 <br />
-                <button
-                  onClick={handleDoctorLogin}
-                  className="btn-secondary w-full sm:w-auto"
-                >
-                  Doctor Login
-                </button>
               </div>
             </div>
           </div>

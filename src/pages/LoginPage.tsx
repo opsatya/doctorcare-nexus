@@ -160,7 +160,7 @@ export const LoginPage = () => {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Don't have an account? </span>
-              <Link to="/signup" className="text-primary hover:underline font-medium">
+              <Link to="/signup?type=doctor" className="text-primary hover:underline font-medium">
                 Create Account
               </Link>
             </div>
