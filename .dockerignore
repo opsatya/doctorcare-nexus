@@ -1,0 +1,16 @@
+# Dependency directories
+node_modules
+backend/node_modules
+
+# Frontend build output
+dist
+
+# Log files
+*.log
+
+# Git and misc
+.git
+.gitignore
+.dockerignore
+Dockerfile
+README.md
