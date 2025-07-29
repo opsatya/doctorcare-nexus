@@ -123,6 +123,48 @@ export const handlers = [
     ]);
   }),
 
+  // Get single appointment
+  http.get('http://localhost:3001/api/appointments/:id', async ({ params }) => {
+    console.log('🔧 MSW: Handling GET /api/appointments/:id', params.id);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const appointments = [
+      {
+        id: 1,
+        doctorId: 1,
+        doctorName: "Dr. Sarah Johnson",
+        specialization: "Cardiology",
+        patientName: "John Doe",
+        email: "john.doe@email.com",
+        phone: "+1-555-0123",
+        date: "2025-07-26",
+        time: "10:00 AM",
+        status: "pending",
+        reason: "Regular checkup"
+      },
+      {
+        id: 2,
+        doctorId: 2,
+        doctorName: "Dr. Michael Chen",
+        specialization: "Pediatrics",
+        patientName: "Jane Smith",
+        email: "jane.smith@email.com",
+        phone: "+1-555-0125",
+        date: "2025-07-27",
+        time: "2:30 PM",
+        status: "confirmed",
+        reason: "Child vaccination"
+      }
+    ];
+    
+    const appointment = appointments.find(a => a.id === parseInt(params.id as string));
+    if (appointment) {
+      return HttpResponse.json(appointment);
+    } else {
+      return HttpResponse.json({ error: 'Appointment not found' }, { status: 404 });
+    }
+  }),
+
   http.post('http://localhost:3001/api/appointments', async ({ request }) => {
     console.log('🔧 MSW: Handling POST /api/appointments');
     const body = await request.json() as any;
