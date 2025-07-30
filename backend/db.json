@@ -12,7 +12,11 @@
       "consultationFee": 1200,
       "location": "Delhi, India",
       "nextAvailable": "Today 3 PM",
-      "availability": ["Monday", "Wednesday", "Friday"],
+      "availability": [
+        "Monday",
+        "Wednesday",
+        "Friday"
+      ],
       "about": "Experienced cardiologist with expertise in preventive care and advanced cardiac procedures.",
       "createdAt": "2025-01-05T00:00:00Z"
     },
@@ -28,7 +32,11 @@
       "consultationFee": 800,
       "location": "Mumbai, India",
       "nextAvailable": "Tomorrow",
-      "availability": ["Tuesday", "Thursday", "Saturday"],
+      "availability": [
+        "Tuesday",
+        "Thursday",
+        "Saturday"
+      ],
       "about": "Pediatric specialist focused on child development and family-centered care.",
       "createdAt": "2025-01-10T00:00:00Z"
     },
@@ -44,7 +52,12 @@
       "consultationFee": 1000,
       "location": "Bangalore, India",
       "nextAvailable": "Today 5 PM",
-      "availability": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+      "availability": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday"
+      ],
       "about": "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy.",
       "createdAt": "2025-01-01T00:00:00Z"
     }
@@ -84,7 +97,7 @@
       "phone": "+1-555-0123",
       "date": "2025-07-26",
       "time": "10:00 AM",
-      "status": "pending",
+      "status": "confirmed",
       "reason": "Regular checkup",
       "createdAt": "2025-07-25T00:00:00Z"
     },
