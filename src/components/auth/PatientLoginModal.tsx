@@ -63,7 +63,7 @@ export const PatientLoginModal = ({ isOpen, onClose, initialLoginType = 'patient
     
     try {
       const endpoint = loginType === 'patient' ? '/api/patient/login' : '/api/doctor/login';
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

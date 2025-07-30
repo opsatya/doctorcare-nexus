@@ -21,7 +21,7 @@ server.post('/api/doctor/login', (req, res) => {
   if (doctor) {
     return res.json({
       success: true,
-      user: { ...doctor, password: undefined },
+      doctor: { ...doctor, password: undefined },
       token: 'mock-jwt-token',
       userType: 'doctor'
     });
@@ -43,6 +43,18 @@ server.post('/api/patient/login', (req, res) => {
     });
   }
   res.status(401).json({ success: false, message: 'Invalid credentials' });
+});
+
+// Add CORS middleware
+server.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 
 // Default middlewares

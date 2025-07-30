@@ -67,6 +67,7 @@ export const SignupPage = () => {
         setAuth({
           isAuthenticated: true,
           doctor: result.doctor,
+          patient: null,
           token: result.token,
         });
         

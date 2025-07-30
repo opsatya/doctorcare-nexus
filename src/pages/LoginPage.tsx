@@ -52,6 +52,7 @@ export const LoginPage = () => {
         setAuth({
           isAuthenticated: true,
           doctor: result.doctor,
+          patient: null,
           token: result.token,
         });
         

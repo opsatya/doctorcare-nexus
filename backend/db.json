@@ -3,8 +3,8 @@
     {
       "id": 1,
       "name": "Dr. Sarah Johnson",
-      "email": "sarah.johnson@doctorcare.com",
-      "password": "password123",
+      "email": "teste@example.com",
+      "password": "123456",
       "specialization": "Cardiology",
       "experience": 15,
       "rating": 4.9,
@@ -64,8 +64,8 @@
     {
       "id": 2,
       "name": "Jane Smith",
-      "email": "jane.smith@email.com",
-      "password": "password123",
+      "email": "patient@example.com",
+      "password": "123456",
       "phone": "+1-555-0125",
       "dateOfBirth": "1990-07-22",
       "address": "456 Oak Ave, Los Angeles, CA",

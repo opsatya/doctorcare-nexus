@@ -90,6 +90,7 @@ export const Dashboard = () => {
     setAuth({
       isAuthenticated: false,
       doctor: null,
+      patient: null,
       token: null,
     });
     
