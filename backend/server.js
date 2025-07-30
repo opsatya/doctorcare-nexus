@@ -26,7 +26,10 @@ server.use(limiter);
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? process.env.FRONTEND_URL 
-    : ['http://localhost:3000', 'http://localhost:5173'],
+    : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:8081', 'http://127.0.0.1:8081'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
   optionsSuccessStatus: 200
 };
 server.use(cors(corsOptions));
@@ -35,6 +38,25 @@ server.use(cors(corsOptions));
 server.use(jsonServer.bodyParser);
 
 // Mock authentication endpoints
+server.post('/api/patient/login', (req, res) => {
+  const { email, password } = req.body;
+  const patient = db.patients.find(p => p.email === email && p.password === password);
+  
+  if (patient) {
+    const token = 'mock-jwt-token-patient-' + patient.id;
+    res.json({
+      success: true,
+      user: { ...patient, password: undefined },
+      token
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid credentials'
+    });
+  }
+});
+
 server.post('/api/doctor/login', (req, res) => {
   const { email, password } = req.body;
   const doctor = db.doctors.find(d => d.email === email && d.password === password);
@@ -54,24 +76,7 @@ server.post('/api/doctor/login', (req, res) => {
   }
 });
 
-server.post('/api/patient/login', (req, res) => {
-  const { email, password } = req.body;
-  const patient = db.patients.find(p => p.email === email && p.password === password);
-  
-  if (patient) {
-    const token = 'mock-jwt-token-patient-' + patient.id;
-    res.json({
-      success: true,
-      user: { ...patient, password: undefined },
-      token
-    });
-  } else {
-    res.status(401).json({
-      success: false,
-      message: 'Invalid credentials'
-    });
-  }
-});
+
 
 server.post('/api/doctor/signup', (req, res) => {
   const { name, email, password, specialization, licenseNumber, phone } = req.body;
@@ -192,7 +197,7 @@ server.use((err, req, res, next) => {
 });
 
 const port = process.env.PORT || 3001;
-const host = process.env.HOST || '0.0.0.0';
+const host = process.env.HOST || 'localhost';
 
 server.listen(port, host, () => {
   console.log(`Server is running on http://${host}:${port}`);
