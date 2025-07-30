@@ -72,7 +72,8 @@ export const BookAppointmentPage = () => {
 
   const fetchDoctor = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/doctors/${doctorId}`);
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
+      const response = await fetch(`${apiBase}/doctors/${doctorId}`);
       const data = await response.json();
       setDoctor(data);
     } catch (error) {
@@ -107,7 +108,8 @@ export const BookAppointmentPage = () => {
         status: 'pending',
       };
 
-      const response = await fetch('http://localhost:3001/api/appointments', {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
+    const response = await fetch(`${apiBase}/appointments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

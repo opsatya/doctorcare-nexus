@@ -51,14 +51,15 @@ export const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
       
       const [appointmentsRes, statsRes] = await Promise.all([
-        fetch('/api/doctor/appointments', {
+        fetch(`${apiBase}/doctor/appointments`, {
           headers: {
             Authorization: `Bearer ${auth.token}`,
           },
         }),
-        fetch('/api/doctor/stats', {
+        fetch(`${apiBase}/doctor/stats`, {
           headers: {
             Authorization: `Bearer ${auth.token}`,
           },

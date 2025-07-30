@@ -26,7 +26,7 @@ server.use(limiter);
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? process.env.FRONTEND_URL 
-    : [ 'https://your-frontend-name.onrender.com','http://localhost:8081'],
+    : [ 'https://doctorcare-nexus.vercel.app/','http://localhost:8081'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

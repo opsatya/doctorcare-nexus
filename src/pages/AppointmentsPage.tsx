@@ -32,7 +32,8 @@ export const AppointmentsPage = () => {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/appointments');
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/$/, '');
+      const response = await fetch(`${apiBase}/appointments`);
       const data = await response.json();
       setAppointments(data);
     } catch (error) {
@@ -74,7 +75,8 @@ export const AppointmentsPage = () => {
 
   const updateAppointmentStatus = async (appointmentId: number, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/appointments/${appointmentId}`, {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const response = await fetch(`${apiBase}/appointments/${appointmentId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
