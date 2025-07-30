@@ -26,7 +26,7 @@ server.use(limiter);
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? process.env.FRONTEND_URL 
-    : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:8081', 'http://127.0.0.1:8081'],
+    : [ 'https://your-frontend-name.onrender.com','http://localhost:8081'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -197,7 +197,7 @@ server.use((err, req, res, next) => {
 });
 
 const port = process.env.PORT || 3001;
-const host = process.env.HOST || 'localhost';
+const host = process.env.HOST || '0.0.0.0';
 
 server.listen(port, host, () => {
   console.log(`Server is running on http://${host}:${port}`);
