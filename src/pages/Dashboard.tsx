@@ -51,30 +51,73 @@ export const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       
-      const [appointmentsRes, statsRes] = await Promise.all([
-        fetch(`${apiBase}/doctor/appointments`, {
-          headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        }),
-        fetch(`${apiBase}/doctor/stats`, {
-          headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        }),
-      ]);
+      // Fetch doctor's appointments
+      const appointmentsResponse = await fetch(`${apiBase}/api/doctors/${auth.doctor?.id}/appointments`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      });
 
-      const appointmentsData = await appointmentsRes.json();
-      const statsData = await statsRes.json();
+      if (appointmentsResponse.ok) {
+        const appointmentsData = await appointmentsResponse.json();
+        setAppointments(appointmentsData.map((apt: any) => ({
+          id: apt.id,
+          patientName: apt.patientName,
+          date: apt.date,
+          time: apt.time,
+          status: apt.status,
+          type: apt.reason || 'Consultation'
+        })));
 
-      if (appointmentsData.success) {
-        setAppointments(appointmentsData.appointments);
-      }
+        // Calculate stats from appointments
+        const today = new Date().toISOString().split('T')[0];
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        const weekStart = startOfWeek.toISOString().split('T')[0];
 
-      if (statsData.success) {
-        setStats(statsData.stats);
+        const appointmentsToday = appointmentsData.filter((apt: any) => apt.date === today).length;
+        const appointmentsThisWeek = appointmentsData.filter((apt: any) => apt.date >= weekStart).length;
+        const pendingAppointments = appointmentsData.filter((apt: any) => apt.status === 'pending').length;
+
+        setStats({
+          totalPatients: new Set(appointmentsData.map((apt: any) => apt.email)).size,
+          appointmentsToday,
+          appointmentsThisWeek,
+          pendingAppointments
+        });
+      } else {
+        // Fallback to filtering all appointments if endpoint doesn't exist
+        const allAppointmentsResponse = await fetch(`${apiBase}/api/appointments`);
+        const allAppointments = await allAppointmentsResponse.json();
+        const doctorAppointments = allAppointments.filter((apt: any) => apt.doctorId == auth.doctor?.id);
+        
+        setAppointments(doctorAppointments.map((apt: any) => ({
+          id: apt.id,
+          patientName: apt.patientName,
+          date: apt.date,
+          time: apt.time,
+          status: apt.status,
+          type: apt.reason || 'Consultation'
+        })));
+
+        // Calculate stats
+        const today = new Date().toISOString().split('T')[0];
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        const weekStart = startOfWeek.toISOString().split('T')[0];
+
+        const appointmentsToday = doctorAppointments.filter((apt: any) => apt.date === today).length;
+        const appointmentsThisWeek = doctorAppointments.filter((apt: any) => apt.date >= weekStart).length;
+        const pendingAppointments = doctorAppointments.filter((apt: any) => apt.status === 'pending').length;
+
+        setStats({
+          totalPatients: new Set(doctorAppointments.map((apt: any) => apt.email)).size,
+          appointmentsToday,
+          appointmentsThisWeek,
+          pendingAppointments
+        });
       }
     } catch (error) {
       toast({
@@ -88,6 +131,10 @@ export const Dashboard = () => {
   };
 
   const handleLogout = () => {
+    // Clear localStorage based on user type
+    localStorage.removeItem('doctorcare_auth');
+    localStorage.removeItem('doctorcare_patient_auth');
+    
     setAuth({
       isAuthenticated: false,
       doctor: null,

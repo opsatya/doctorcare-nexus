@@ -48,6 +48,34 @@ export const patientLoginSchema = yup.object().shape({
     .required('Password is required'),
 });
 
+export const patientSignupSchema = yup.object().shape({
+  name: yup
+    .string()
+    .required('Name is required')
+    .min(2, 'Name must be at least 2 characters'),
+  email: yup
+    .string()
+    .email('Invalid email')
+    .required('Email is required'),
+  password: yup
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('password')], 'Passwords must match')
+    .required('Password confirmation is required'),
+  phone: yup
+    .string()
+    .required('Phone number is required'),
+  dateOfBirth: yup
+    .string()
+    .required('Date of birth is required'),
+  address: yup
+    .string()
+    .required('Address is required'),
+});
+
 export const profileUpdateSchema = yup.object().shape({
   name: yup
     .string()

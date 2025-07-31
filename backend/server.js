@@ -138,8 +138,12 @@ server.post('/api/appointments', (req, res) => {
     return res.status(404).json({ error: 'Doctor not found' });
   }
   
+  // Find patient by email
+  const patient = db.patients.find(p => p.email === email);
+  
   const newAppointment = {
     id: Date.now(), // Simple ID generation
+    patientId: patient ? patient.id : null,
     patientName,
     email,
     phone,
@@ -158,6 +162,20 @@ server.post('/api/appointments', (req, res) => {
     db.appointments = [];
   }
   db.appointments.push(newAppointment);
+  
+  // Update patient's appointments array if patient exists
+  if (patient) {
+    if (!patient.appointments) {
+      patient.appointments = [];
+    }
+    patient.appointments.push(newAppointment.id);
+  }
+  
+  // Update doctor's appointments array
+  if (!doctor.appointments) {
+    doctor.appointments = [];
+  }
+  doctor.appointments.push(newAppointment.id);
   
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
@@ -189,6 +207,67 @@ server.use(middlewares);
 
 // Use router
 server.use('/api', router);
+
+// Get appointments for a specific patient
+server.get('/api/patients/:id/appointments', (req, res) => {
+  const patient = db.patients.find(p => p.id == req.params.id);
+  if (!patient) {
+    return res.status(404).json({ error: 'Patient not found' });
+  }
+  
+  const appointments = db.appointments.filter(appt => appt.email === patient.email);
+  res.json(appointments);
+});
+
+// Get appointments for a specific doctor
+server.get('/api/doctors/:id/appointments', (req, res) => {
+  const doctor = db.doctors.find(d => d.id == req.params.id);
+  if (!doctor) {
+    return res.status(404).json({ error: 'Doctor not found' });
+  }
+  
+  const appointments = db.appointments.filter(appt => appt.doctorId == req.params.id);
+  res.json(appointments);
+});
+
+// Patient signup endpoint
+server.post('/api/patient/signup', (req, res) => {
+  const { name, email, password, phone, dateOfBirth, address } = req.body;
+  
+  // Check if patient already exists
+  const existingPatient = db.patients.find(p => p.email === email);
+  if (existingPatient) {
+    return res.status(400).json({
+      success: false,
+      message: 'Patient with this email already exists'
+    });
+  }
+  
+  // Create new patient
+  const newPatient = {
+    id: db.patients.length + 1,
+    name,
+    email,
+    password,
+    phone,
+    dateOfBirth,
+    address,
+    appointments: [],
+    createdAt: new Date().toISOString()
+  };
+  
+  db.patients.push(newPatient);
+  
+  // Save to file
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+  
+  const token = 'mock-jwt-token-patient-' + newPatient.id;
+  res.json({
+    success: true,
+    patient: { ...newPatient, password: undefined },
+    token
+  });
+});
 
 // Error handling middleware
 server.use((err, req, res, next) => {

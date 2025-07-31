@@ -10,6 +10,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { DoctorListPage } from "./pages/DoctorListPage";
 import { BookAppointmentPage } from "./pages/BookAppointmentPage";
 import { AppointmentsPage } from "./pages/AppointmentsPage";
+import { PatientDashboard } from "./pages/PatientDashboard";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -22,9 +23,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/landing" element={<LandingPage />} />
           <Route path="/doctors" element={<DoctorListPage />} />
           <Route path="/book-appointment/:doctorId" element={<BookAppointmentPage />} />
           <Route path="/appointments" element={<AppointmentsPage />} />
@@ -38,7 +39,11 @@ const App = () => (
           />
           <Route 
             path="/patient-dashboard" 
-            element={<AppointmentsPage />}
+            element={
+              <ProtectedRoute>
+                <PatientDashboard />
+              </ProtectedRoute>
+            }
           />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
