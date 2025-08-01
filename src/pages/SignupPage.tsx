@@ -63,7 +63,7 @@ export const SignupPage = () => {
     setIsLoading(true);
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
+      const apiBase = import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api'.replace(/\/$/, '');
       const response = await fetch(`${apiBase}/doctor/signup`, {
         method: 'POST',
         headers: {
@@ -113,7 +113,7 @@ export const SignupPage = () => {
     setIsLoading(true);
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
+      const apiBase = import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api'.replace(/\/$/, '');
       const response = await fetch(`${apiBase}/patient/signup`, {
         method: 'POST',
         headers: {

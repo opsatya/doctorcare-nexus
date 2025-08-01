@@ -38,7 +38,8 @@ export const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/doctor/login', {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api'.replace(/\/$/, '');
+      const response = await fetch(`${apiBase}/doctor/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

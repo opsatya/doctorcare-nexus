@@ -116,6 +116,54 @@ server.post('/api/doctor/signup', (req, res) => {
   });
 });
 
+// Patient signup endpoint
+server.post('/api/patient/signup', (req, res) => {
+  const { name, email, password, phone, dateOfBirth, address } = req.body;
+  
+  // Initialize patients array if it doesn't exist
+  if (!db.patients) {
+    db.patients = [];
+  }
+  
+  // Check if patient already exists
+  const existingPatient = db.patients.find(p => p.email === email);
+  if (existingPatient) {
+    return res.status(400).json({
+      success: false,
+      message: 'Patient with this email already exists'
+    });
+  }
+  
+  // Create new patient
+  const newPatient = {
+    id: db.patients.length + 1,
+    name,
+    email,
+    password,
+    phone,
+    dateOfBirth,
+    address,
+    isVerified: false,
+    createdAt: new Date().toISOString()
+  };
+  
+  // Add to database
+  db.patients.push(newPatient);
+  
+  // Save to file
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+  
+  // Create token and return response (without password)
+  const token = 'mock-jwt-token-patient-' + newPatient.id;
+  const { password: _, ...patientWithoutPassword } = newPatient;
+  
+  res.json({
+    success: true,
+    patient: patientWithoutPassword,
+    token
+  });
+});
+
 // Get single doctor
 server.get('/api/doctors/:id', (req, res) => {
   const doctorId = parseInt(req.params.id);

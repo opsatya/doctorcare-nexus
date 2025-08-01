@@ -60,6 +60,17 @@
       ],
       "about": "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy.",
       "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Vedant Dhore",
+      "email": "vedantdhore123@gmail.com",
+      "password": "123456",
+      "specialization": "neurology",
+      "licenseNumber": "12345-Y",
+      "phone": "8446308539",
+      "isVerified": false,
+      "createdAt": "2025-07-31T07:22:21.252Z"
     }
   ],
   "patients": [
@@ -84,6 +95,28 @@
       "address": "456 Oak Ave, Los Angeles, CA",
       "emergencyContact": "Tom Smith - +1-555-0126",
       "createdAt": "2025-01-20T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "satya singh",
+      "email": "teste@example.com",
+      "password": "satya@123",
+      "phone": " 594655487",
+      "dateOfBirth": "12-04-2005",
+      "address": "lohegaon pune",
+      "isVerified": false,
+      "createdAt": "2025-07-31T07:18:28.300Z"
+    },
+    {
+      "id": 4,
+      "name": "satyajeet singh",
+      "email": "satyajeet.singh12005@gmail.com",
+      "password": "123456",
+      "phone": "7709003064",
+      "dateOfBirth": "2005-04-12",
+      "address": "lohegaon , pune, maharashtra",
+      "isVerified": false,
+      "createdAt": "2025-07-31T07:18:49.080Z"
     }
   ],
   "appointments": [
