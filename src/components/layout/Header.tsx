@@ -2,20 +2,30 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X, Stethoscope } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRecoilValue } from 'recoil';
+import { authState } from '@/lib/recoil/atoms';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
-  onScheduleClick?: () => void;
+  onLoginClick?: () => void;
 }
 
-export const Header = ({ onScheduleClick }: HeaderProps) => {
+export const Header = ({ onLoginClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const auth = useRecoilValue(authState);
+  const navigate = useNavigate();
 
-  const menuItems = [
+const menuItems = auth.isAuthenticated ? [
     { label: 'Home', href: '#home' },
     { label: 'About', href: '#about' },
     { label: 'Services', href: '#services' },
     { label: 'Testimonials', href: '#testimonials' },
-    { label: 'Find Doctors', href: '/doctors' },
+    auth.doctor ? { label: 'Dashboard', href: '/dashboard' } : { label: 'Patient Dashboard', href: '/patient-dashboard' },
+  ] : [
+    { label: 'Home', href: '#home' },
+    { label: 'About', href: '#about' },
+    { label: 'Services', href: '#services' },
+    { label: 'Testimonials', href: '#testimonials' },
   ];
 
   return (
@@ -53,12 +63,27 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
 
           {/* CTA Button - Desktop */}
           <div className="hidden md:block">
-            <Button
-              onClick={onScheduleClick}
-              className="btn-hero"
-            >
-              Schedule Appointment
-            </Button>
+            {!auth.isAuthenticated ? (
+              <Button
+                onClick={onLoginClick}
+                className="btn-hero"
+              >
+                Login / Sign Up
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  if (auth.doctor) {
+                    navigate('/dashboard');
+                  } else if (auth.patient) {
+                    navigate('/patient-dashboard');
+                  }
+                }}
+                className="btn-hero"
+              >
+                Dashboard
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,15 +128,31 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
                   {item.label}
                 </a>
               ))}
-              <Button
-                onClick={() => {
-                  onScheduleClick?.();
-                  setIsMenuOpen(false);
-                }}
-                className="btn-hero w-full mt-4"
-              >
-                Schedule Appointment
-              </Button>
+              {!auth.isAuthenticated ? (
+                <Button
+                  onClick={() => {
+                    onLoginClick?.();
+                    setIsMenuOpen(false);
+                  }}
+                  className="btn-hero w-full mt-4"
+                >
+                  Login / Sign Up
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    if (auth.doctor) {
+                      navigate('/dashboard');
+                    } else if (auth.patient) {
+                      navigate('/patient-dashboard');
+                    }
+                    setIsMenuOpen(false);
+                  }}
+                  className="btn-hero w-full mt-4"
+                >
+                  Dashboard
+                </Button>
+              )}
             </nav>
           </motion.div>
         )}

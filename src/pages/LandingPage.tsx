@@ -27,22 +27,17 @@ export const LandingPage = () => {
     }
   }, [auth, navigate]);
 
-  const handleScheduleClick = () => {
-    setLoginModalType('patient');
-    setIsLoginModalOpen(true);
-  };
-
-  const handleDoctorLogin = () => {
-    setLoginModalType('doctor');
+  const handleLoginClick = () => {
+    setLoginModalType('patient'); // Default to patient, can be switched in modal
     setIsLoginModalOpen(true);
   };
 
   return (
     <div className="min-h-screen">
-      <Header onScheduleClick={handleScheduleClick} />
+      <Header onLoginClick={handleLoginClick} />
       
       <main>
-        <HeroSection onScheduleClick={handleScheduleClick} />
+        <HeroSection onLoginClick={handleLoginClick} />
         <AboutSection />
         <ServicesSection />
         <TestimonialsSection />
@@ -84,10 +79,10 @@ export const LandingPage = () => {
               
               <div className="text-center lg:text-right space-y-4">
                 <button
-                  onClick={handleScheduleClick}
+                  onClick={handleLoginClick}
                   className="btn-hero mb-4 w-full sm:w-auto"
                 >
-                  Schedule Appointment
+                  Get Started
                 </button>
                 <br />
               </div>

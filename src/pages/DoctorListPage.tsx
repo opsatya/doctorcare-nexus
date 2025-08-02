@@ -6,6 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useRecoilValue } from 'recoil';
+import { authState } from '@/lib/recoil/atoms';
+import { useNavigate } from 'react-router-dom';
+import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
 
 interface Doctor {
   id: number;
@@ -25,6 +29,28 @@ export const DoctorListPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('');
   const { toast } = useToast();
+  const auth = useRecoilValue(authState);
+  const navigate = useNavigate();
+
+  // WebSocket for real-time updates
+  const handleWebSocketMessage = (message: WebSocketMessage) => {
+    switch (message.type) {
+      case 'newDoctor':
+        // Add new doctor to the list with default values for missing fields
+        const newDoctor = {
+          ...message.data,
+          rating: message.data.rating || 4.5,
+          experience: message.data.experience || 1,
+          location: message.data.location || 'Not specified',
+          consultationFee: message.data.consultationFee || 500,
+          nextAvailable: 'Available today'
+        };
+        setDoctors(prev => [newDoctor, ...prev]);
+        break;
+    }
+  };
+
+  const { isConnected } = useWebSocket(handleWebSocketMessage);
 
   useEffect(() => {
     fetchDoctors();
@@ -55,8 +81,18 @@ export const DoctorListPage = () => {
   };
 
   const handleBookAppointment = (doctorId: number) => {
+    // Check if user is authenticated and is a patient
+    if (!auth.isAuthenticated || !auth.patient) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please login as a patient to book appointments.',
+        variant: 'destructive',
+      });
+      navigate('/');
+      return;
+    }
     // Navigate to booking page with doctor ID
-    window.location.href = `/book-appointment/${doctorId}`;
+    navigate(`/book-appointment/${doctorId}`);
   };
 
   const filteredDoctors = doctors.filter(doctor => {

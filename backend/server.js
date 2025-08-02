@@ -4,6 +4,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
+const http = require('http');
+const WebSocket = require('ws');
 
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
@@ -11,6 +13,24 @@ const middlewares = jsonServer.defaults();
 
 // Load database
 const db = JSON.parse(fs.readFileSync('db.json'));
+
+// Create server instance
+const serverInstance = http.createServer(server);
+
+// WebSocket setup
+const wss = new WebSocket.Server({ server: serverInstance });
+
+wss.on('connection', (ws) => {
+  console.log('WebSocket connection established');
+});
+
+function broadcastUpdate(data) {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(data));
+    }
+  });
+}
 
 // Security middleware
 server.use(helmet());
@@ -99,6 +119,11 @@ server.post('/api/doctor/signup', (req, res) => {
     specialization,
     licenseNumber,
     phone,
+    rating: 4.5, // Default rating for new doctors
+    experience: 1, // Default experience
+    location: 'Not specified', // Default location
+    consultationFee: 500, // Default consultation fee
+    nextAvailable: 'Available today', // Default availability
     isVerified: false,
     createdAt: new Date().toISOString()
   };
@@ -109,6 +134,7 @@ server.post('/api/doctor/signup', (req, res) => {
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
   const token = 'mock-jwt-token-doctor-' + newDoctor.id;
+  broadcastUpdate({ type: 'newDoctor', data: { ...newDoctor, password: undefined } });
   res.json({
     success: true,
     doctor: { ...newDoctor, password: undefined },
@@ -157,6 +183,7 @@ server.post('/api/patient/signup', (req, res) => {
   const token = 'mock-jwt-token-patient-' + newPatient.id;
   const { password: _, ...patientWithoutPassword } = newPatient;
   
+  broadcastUpdate({ type: 'newPatient', data: patientWithoutPassword });
   res.json({
     success: true,
     patient: patientWithoutPassword,
@@ -228,6 +255,7 @@ server.post('/api/appointments', (req, res) => {
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
+  broadcastUpdate({ type: 'newAppointment', data: newAppointment });
   res.json(newAppointment);
 });
 
@@ -247,6 +275,7 @@ server.patch('/api/appointments/:id', (req, res) => {
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
+  broadcastUpdate({ type: 'appointmentStatusUpdate', data: db.appointments[appointmentIndex] });
   res.json(db.appointments[appointmentIndex]);
 });
 
@@ -278,44 +307,6 @@ server.get('/api/doctors/:id/appointments', (req, res) => {
   res.json(appointments);
 });
 
-// Patient signup endpoint
-server.post('/api/patient/signup', (req, res) => {
-  const { name, email, password, phone, dateOfBirth, address } = req.body;
-  
-  // Check if patient already exists
-  const existingPatient = db.patients.find(p => p.email === email);
-  if (existingPatient) {
-    return res.status(400).json({
-      success: false,
-      message: 'Patient with this email already exists'
-    });
-  }
-  
-  // Create new patient
-  const newPatient = {
-    id: db.patients.length + 1,
-    name,
-    email,
-    password,
-    phone,
-    dateOfBirth,
-    address,
-    appointments: [],
-    createdAt: new Date().toISOString()
-  };
-  
-  db.patients.push(newPatient);
-  
-  // Save to file
-  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
-  
-  const token = 'mock-jwt-token-patient-' + newPatient.id;
-  res.json({
-    success: true,
-    patient: { ...newPatient, password: undefined },
-    token
-  });
-});
 
 // Error handling middleware
 server.use((err, req, res, next) => {
@@ -326,8 +317,9 @@ server.use((err, req, res, next) => {
 const port = process.env.PORT || 3001;
 const host = process.env.HOST || '0.0.0.0';
 
-server.listen(port, host, () => {
+serverInstance.listen(port, host, () => {
   console.log(`Server is running on http://${host}:${port}`);
+  console.log(`WebSocket server running.`);
   console.log(`Available endpoints:`);
   console.log(`  POST /api/doctor/login`);
   console.log(`  POST /api/patient/login`);

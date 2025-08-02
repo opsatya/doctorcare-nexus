@@ -470,7 +470,7 @@ export const SignupPage = () => {
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Already have an account? </span>
               <Link to="/" className="text-primary hover:underline font-medium">
-                Sign In
+                Back to Home
               </Link>
             </div>
           </CardContent>

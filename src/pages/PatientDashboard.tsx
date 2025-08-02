@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState, clearAuthState } from '@/lib/recoil/atoms';
+import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
 
 interface Appointment {
   id: string;
@@ -36,6 +37,41 @@ export const PatientDashboard = () => {
   const setAuth = useSetRecoilState(authState);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // WebSocket for real-time updates
+  const handleWebSocketMessage = (message: WebSocketMessage) => {
+    switch (message.type) {
+      case 'newAppointment':
+        // Only add appointment if it's for this patient
+        if (message.data.email === auth.patient?.email) {
+          const newAppointment = {
+            id: message.data.id,
+            doctorName: message.data.doctorName,
+            specialization: message.data.specialization,
+            date: message.data.date,
+            time: message.data.time,
+            status: message.data.status,
+            reason: message.data.reason
+          };
+          setAppointments(prev => [newAppointment, ...prev]);
+        }
+        break;
+      case 'appointmentStatusUpdate':
+        // Update appointment in the list if it belongs to this patient
+        if (message.data.email === auth.patient?.email) {
+          setAppointments(prev => 
+            prev.map(apt => 
+              apt.id === message.data.id 
+                ? { ...apt, status: message.data.status }
+                : apt
+            )
+          );
+        }
+        break;
+    }
+  };
+
+  const { isConnected } = useWebSocket(handleWebSocketMessage);
 
   useEffect(() => {
     if (auth.patient) {
@@ -113,7 +149,14 @@ export const PatientDashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Bell className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              <div className="relative">
+                <Bell className={`h-5 w-5 cursor-pointer hover:text-primary ${
+                  isConnected ? 'text-green-500' : 'text-muted-foreground'
+                }`} />
+                {!isConnected && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                )}
+              </div>
               <div className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span className="text-sm font-medium">{auth.patient?.name}</span>

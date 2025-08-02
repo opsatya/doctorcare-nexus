@@ -122,7 +122,7 @@ export const BookAppointmentPage = () => {
           title: 'Appointment Booked!',
           description: 'Your appointment has been successfully booked. You will receive a confirmation email shortly.',
         });
-        navigate('/appointments');
+        navigate('/patient-dashboard');
       } else {
         throw new Error('Failed to book appointment');
       }

@@ -10,13 +10,16 @@ import {
   LogOut, 
   User,
   Stethoscope,
-  Bell
+  Bell,
+  Check,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState } from '@/lib/recoil/atoms';
+import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
 
 interface Appointment {
   id: string;
@@ -43,6 +46,34 @@ export const Dashboard = () => {
   const setAuth = useSetRecoilState(authState);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // WebSocket for real-time updates
+  const handleWebSocketMessage = (message: WebSocketMessage) => {
+    switch (message.type) {
+      case 'newAppointment':
+        // Only add appointment if it's for this doctor
+        if (message.data.doctorId == auth.doctor?.id) {
+          setAppointments(prev => [message.data, ...prev]);
+          fetchDashboardData(); // Refresh stats
+        }
+        break;
+      case 'appointmentStatusUpdate':
+        // Update appointment in the list
+        if (message.data.doctorId == auth.doctor?.id) {
+          setAppointments(prev => 
+            prev.map(apt => 
+              apt.id === message.data.id 
+                ? { ...apt, status: message.data.status }
+                : apt
+            )
+          );
+          fetchDashboardData(); // Refresh stats
+        }
+        break;
+    }
+  };
+
+  const { isConnected } = useWebSocket(handleWebSocketMessage);
 
   useEffect(() => {
     fetchDashboardData();
@@ -150,6 +181,35 @@ export const Dashboard = () => {
     navigate('/');
   };
 
+  const handleAppointmentAction = async (appointmentId: string, action: 'confirmed' | 'cancelled') => {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${apiBase}/api/appointments/${appointmentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({ status: action }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Appointment Updated',
+          description: `Appointment ${action === 'confirmed' ? 'confirmed' : 'cancelled'} successfully.`,
+        });
+      } else {
+        throw new Error('Failed to update appointment');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update appointment status.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -177,7 +237,14 @@ export const Dashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Bell className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              <div className="relative">
+                <Bell className={`h-5 w-5 cursor-pointer hover:text-primary ${
+                  isConnected ? 'text-green-500' : 'text-muted-foreground'
+                }`} />
+                {!isConnected && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                )}
+              </div>
               <div className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span className="text-sm font-medium">{auth.doctor?.name}</span>
@@ -320,7 +387,31 @@ export const Dashboard = () => {
                             {appointment.time}
                           </p>
                         </div>
-                        {getStatusBadge(appointment.status)}
+                        <div className="flex items-center space-x-2">
+                          {appointment.status === 'pending' && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                onClick={() => handleAppointmentAction(appointment.id, 'confirmed')}
+                              >
+                                <Check className="h-4 w-4 mr-1" />
+                                Confirm
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600 border-red-600 hover:bg-red-50"
+                                onClick={() => handleAppointmentAction(appointment.id, 'cancelled')}
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Decline
+                              </Button>
+                            </>
+                          )}
+                          {getStatusBadge(appointment.status)}
+                        </div>
                       </div>
                     </div>
                   ))}
