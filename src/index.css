@@ -140,4 +140,109 @@
   .stagger-child {
     @apply opacity-0 translate-y-4;
   }
+
+  /* Calendar Styles */
+  .calendar-container .rbc-calendar {
+    background: transparent;
+    color: hsl(var(--foreground));
+  }
+
+  .calendar-container .rbc-toolbar {
+    color: hsl(var(--foreground));
+    margin-bottom: 1rem;
+  }
+
+  .calendar-container .rbc-toolbar button {
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    margin: 0 0.25rem;
+  }
+
+  .calendar-container .rbc-toolbar button:hover {
+    background: hsl(var(--muted));
+  }
+
+  .calendar-container .rbc-toolbar button.rbc-active {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .calendar-container .rbc-header {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--border));
+    padding: 0.75rem 0.5rem;
+    font-weight: 500;
+  }
+
+  .calendar-container .rbc-today {
+    background-color: hsl(var(--accent) / 0.1);
+  }
+
+  .calendar-container .rbc-off-range-bg {
+    background: hsl(var(--muted) / 0.3);
+  }
+
+  .calendar-container .rbc-time-view .rbc-time-gutter,
+  .calendar-container .rbc-time-view .rbc-time-content,
+  .calendar-container .rbc-time-header-gutter {
+    border-color: hsl(var(--border));
+  }
+
+  .calendar-container .rbc-time-slot {
+    border-color: hsl(var(--border));
+  }
+
+  .calendar-container .rbc-timeslot-group {
+    border-color: hsl(var(--border));
+  }
+
+  .calendar-container .rbc-current-time-indicator {
+    background-color: hsl(var(--primary));
+    height: 2px;
+  }
+
+  .calendar-container .rbc-day-slot .rbc-event {
+    border: none;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .calendar-container .rbc-event.rbc-selected {
+    background-color: hsl(var(--primary)) !important;
+  }
+
+  .calendar-container .rbc-show-more {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+  }
+
+  .calendar-container .rbc-month-view {
+    border-color: hsl(var(--border));
+  }
+
+  .calendar-container .rbc-date-cell {
+    color: hsl(var(--foreground));
+    padding: 0.5rem;
+  }
+
+  .calendar-container .rbc-date-cell.rbc-off-range {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .calendar-container .rbc-month-row {
+    border-color: hsl(var(--border));
+  }
+
+  .calendar-container .rbc-day-bg {
+    border-color: hsl(var(--border));
+  }
+
+  .calendar-container .rbc-day-bg.rbc-today {
+    background: hsl(var(--accent) / 0.1);
+  }
 }

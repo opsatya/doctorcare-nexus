@@ -179,6 +179,15 @@ const apiBase = import.meta.env.VITE_API_URL || '/api';
             </div>
             
             <div className="flex items-center space-x-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/calendar')}
+                className="flex items-center space-x-2"
+              >
+                <Calendar className="h-4 w-4" />
+                <span>Calendar View</span>
+              </Button>
               <Bell className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
               <div className="flex items-center space-x-2">
                 <User className="h-5 w-5" />

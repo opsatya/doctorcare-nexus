@@ -11,6 +11,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { DoctorListPage } from "./pages/DoctorListPage";
 import { BookAppointmentPage } from "./pages/BookAppointmentPage";
 import { AppointmentsPage } from "./pages/AppointmentsPage";
+import { CalendarPage } from "./pages/CalendarPage";
 import { PatientDashboard } from "./pages/PatientDashboard";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -48,6 +49,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <AppointmentsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/calendar" 
+            element={
+              <ProtectedRoute>
+                <CalendarPage />
               </ProtectedRoute>
             } 
           />
