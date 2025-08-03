@@ -9,10 +9,10 @@ import doctorHero from '@/assets/doctor-hero.jpg';
 gsap.registerPlugin(ScrollTrigger);
 
 interface HeroSectionProps {
-  onScheduleClick?: () => void;
+  onLoginClick?: () => void;
 }
 
-export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
+export const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -93,11 +93,11 @@ export const HeroSection = ({ onScheduleClick }: HeroSectionProps) => {
               className="flex flex-col sm:flex-row gap-4"
             >
               <Button
-                onClick={onScheduleClick}
+                onClick={onLoginClick}
                 className="btn-hero group"
                 size="lg"
               >
-                Schedule Appointment
+                Get Started
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               

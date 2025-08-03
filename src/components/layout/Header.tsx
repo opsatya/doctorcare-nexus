@@ -4,10 +4,10 @@ import { Menu, X, Stethoscope } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
-  onScheduleClick?: () => void;
+  onLoginClick?: () => void;
 }
 
-export const Header = ({ onScheduleClick }: HeaderProps) => {
+export const Header = ({ onLoginClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuItems = [
@@ -15,7 +15,6 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
     { label: 'About', href: '#about' },
     { label: 'Services', href: '#services' },
     { label: 'Testimonials', href: '#testimonials' },
-    { label: 'Find Doctors', href: '/doctors' },
   ];
 
   return (
@@ -51,13 +50,13 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
             ))}
           </nav>
 
-          {/* CTA Button - Desktop */}
+          {/* Login/Signup Button - Desktop */}
           <div className="hidden md:block">
             <Button
-              onClick={onScheduleClick}
+              onClick={onLoginClick}
               className="btn-hero"
             >
-              Schedule Appointment
+                Login / Signup
             </Button>
           </div>
 
@@ -105,12 +104,12 @@ export const Header = ({ onScheduleClick }: HeaderProps) => {
               ))}
               <Button
                 onClick={() => {
-                  onScheduleClick?.();
+                  onLoginClick?.();
                   setIsMenuOpen(false);
                 }}
                 className="btn-hero w-full mt-4"
               >
-                Schedule Appointment
+Get Started
               </Button>
             </nav>
           </motion.div>

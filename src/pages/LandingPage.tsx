@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { Header } from '@/components/layout/Header';
@@ -6,15 +6,13 @@ import { HeroSection } from '@/components/sections/HeroSection';
 import { ServicesSection } from '@/components/sections/ServicesSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
-import { PatientLoginModal } from '@/components/auth/PatientLoginModal';
 import { authState } from '@/lib/recoil/atoms';
 import { Instagram, Facebook, Youtube, Phone, Mail, MapPin } from 'lucide-react';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
   const auth = useRecoilValue(authState);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [loginModalType, setLoginModalType] = useState<'patient' | 'doctor'>('patient');
+
 
   // Redirect authenticated users to their respective dashboards
   useEffect(() => {
@@ -27,22 +25,20 @@ export const LandingPage = () => {
     }
   }, [auth, navigate]);
 
-  const handleScheduleClick = () => {
-    setLoginModalType('patient');
-    setIsLoginModalOpen(true);
+  const handleLoginClick = () => {  
+    navigate('/login');
   };
 
   const handleDoctorLogin = () => {
-    setLoginModalType('doctor');
-    setIsLoginModalOpen(true);
+    navigate('/login');
   };
 
   return (
     <div className="min-h-screen">
-      <Header onScheduleClick={handleScheduleClick} />
+      <Header onLoginClick={handleLoginClick} />
       
       <main>
-        <HeroSection onScheduleClick={handleScheduleClick} />
+        <HeroSection onLoginClick={handleLoginClick} />
         <AboutSection />
         <ServicesSection />
         <TestimonialsSection />
@@ -84,10 +80,10 @@ export const LandingPage = () => {
               
               <div className="text-center lg:text-right space-y-4">
                 <button
-                  onClick={handleScheduleClick}
+                  onClick={handleLoginClick}
                   className="btn-hero mb-4 w-full sm:w-auto"
                 >
-                  Schedule Appointment
+                  Get Started
                 </button>
                 <br />
               </div>
@@ -116,11 +112,6 @@ export const LandingPage = () => {
         </div>
       </footer>
 
-      <PatientLoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        initialLoginType={loginModalType}
-      />
     </div>
   );
 };

@@ -44,17 +44,19 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchDashboardData();
+useEffect(() => {
+    const intervalId = setInterval(fetchDashboardData, 30000); // Poll every 30 seconds
+    fetchDashboardData(); // Initial fetch
+    return () => clearInterval(intervalId); // Cleanup on component unmount
   }, []);
 
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const apiBase = import.meta.env.VITE_API_URL || '/api';
       
       // Fetch doctor's appointments
-      const appointmentsResponse = await fetch(`${apiBase}/api/doctors/${auth.doctor?.id}/appointments`, {
+      const appointmentsResponse = await fetch(`${apiBase}/doctors/${auth.doctor?.id}/appointments`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -89,7 +91,7 @@ export const Dashboard = () => {
         });
       } else {
         // Fallback to filtering all appointments if endpoint doesn't exist
-        const allAppointmentsResponse = await fetch(`${apiBase}/api/appointments`);
+        const allAppointmentsResponse = await fetch(`${apiBase}/appointments`);
         const allAppointments = await allAppointmentsResponse.json();
         const doctorAppointments = allAppointments.filter((apt: any) => apt.doctorId == auth.doctor?.id);
         

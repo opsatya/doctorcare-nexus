@@ -32,7 +32,7 @@ export const AppointmentsPage = () => {
 
   const fetchAppointments = async () => {
     try {
-      const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/$/, '');
+const apiBase = import.meta.env.VITE_API_URL || '/api';
       const response = await fetch(`${apiBase}/appointments`);
       const data = await response.json();
       setAppointments(data);
@@ -75,7 +75,7 @@ export const AppointmentsPage = () => {
 
   const updateAppointmentStatus = async (appointmentId: number, newStatus: string) => {
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const apiBase = import.meta.env.VITE_API_URL || '/api';
       const response = await fetch(`${apiBase}/appointments/${appointmentId}`, {
         method: 'PATCH',
         headers: {

@@ -72,7 +72,7 @@ export const BookAppointmentPage = () => {
 
   const fetchDoctor = async () => {
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
+const apiBase = import.meta.env.VITE_API_URL || '/api';
       const response = await fetch(`${apiBase}/doctors/${doctorId}`);
       const data = await response.json();
       setDoctor(data);
@@ -108,7 +108,7 @@ export const BookAppointmentPage = () => {
         status: 'pending',
       };
 
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'.replace(/\/$/, '');
+const apiBase = import.meta.env.VITE_API_URL || '/api';
     const response = await fetch(`${apiBase}/appointments`, {
         method: 'POST',
         headers: {
@@ -122,7 +122,7 @@ export const BookAppointmentPage = () => {
           title: 'Appointment Booked!',
           description: 'Your appointment has been successfully booked. You will receive a confirmation email shortly.',
         });
-        navigate('/appointments');
+        navigate('/patient-dashboard');
       } else {
         throw new Error('Failed to book appointment');
       }

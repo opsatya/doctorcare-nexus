@@ -2,8 +2,8 @@
   "doctors": [
     {
       "id": 1,
-      "name": "Dr. Sarah Johnson",
-      "email": "teste@example.com",
+      "name": "Dr. Anjali Mehta",
+      "email": "anjali.mehta@doctorcare.in",
       "password": "123456",
       "specialization": "Cardiology",
       "experience": 15,
@@ -22,8 +22,8 @@
     },
     {
       "id": 2,
-      "name": "Dr. Michael Chen",
-      "email": "michael.chen@doctorcare.com",
+      "name": "Dr. Rahul Verma",
+      "email": "rahul.verma@doctorcare.in",
       "password": "password123",
       "specialization": "Pediatrics",
       "experience": 10,
@@ -42,8 +42,8 @@
     },
     {
       "id": 3,
-      "name": "Dr. Emily Rodriguez",
-      "email": "emily.rodriguez@doctorcare.com",
+      "name": "Dr. Priya Nair",
+      "email": "priya.nair@doctorcare.in",
       "password": "password123",
       "specialization": "Mental Health",
       "experience": 12,
@@ -63,71 +63,72 @@
     },
     {
       "id": 4,
-      "name": "Vedant Dhore",
+      "name": "Dr. Vedant Dhore",
       "email": "vedantdhore123@gmail.com",
       "password": "123456",
-      "specialization": "neurology",
+      "specialization": "Neurology",
       "licenseNumber": "12345-Y",
-      "phone": "8446308539",
+      "phone": "+91-84463-08539",
       "isVerified": false,
-      "createdAt": "2025-07-31T07:22:21.252Z"
+      "createdAt": "2025-07-31T07:22:21.252Z",
+      "appointments": [
+        1754216026664,
+        1754216633232,
+        1754216764718
+      ]
     }
   ],
   "patients": [
     {
       "id": 1,
-      "name": "John Doe",
-      "email": "john.doe@email.com",
+      "name": "Rohit Sharma",
+      "email": "rohit.sharma@example.in",
       "password": "password123",
-      "phone": "+1-555-0123",
+      "phone": "+91-98123-45678",
       "dateOfBirth": "1985-03-15",
-      "address": "123 Main St, New York, NY",
-      "emergencyContact": "Jane Doe - +1-555-0124",
+      "address": "123 Civil Lines, Lucknow, Uttar Pradesh",
+      "emergencyContact": "Pooja Sharma - +91-98123-45679",
       "createdAt": "2025-01-15T00:00:00Z"
     },
     {
       "id": 2,
-      "name": "Jane Smith",
-      "email": "patient@example.com",
+      "name": "Neha Singh",
+      "email": "neha.singh@example.in",
       "password": "123456",
-      "phone": "+1-555-0125",
+      "phone": "+91-98765-43219",
       "dateOfBirth": "1990-07-22",
-      "address": "456 Oak Ave, Los Angeles, CA",
-      "emergencyContact": "Tom Smith - +1-555-0126",
-      "createdAt": "2025-01-20T00:00:00Z"
-    },
-    {
-      "id": 3,
-      "name": "satya singh",
-      "email": "teste@example.com",
-      "password": "satya@123",
-      "phone": " 594655487",
-      "dateOfBirth": "12-04-2005",
-      "address": "lohegaon pune",
-      "isVerified": false,
-      "createdAt": "2025-07-31T07:18:28.300Z"
+      "address": "456 MG Road, Indore, Madhya Pradesh",
+      "emergencyContact": "Ankit Singh - +91-98765-43220",
+      "createdAt": "2025-01-20T00:00:00Z",
+      "appointments": [
+        1754216764718
+      ]
     },
     {
       "id": 4,
-      "name": "satyajeet singh",
+      "name": "Satyajeet Singh",
       "email": "satyajeet.singh12005@gmail.com",
       "password": "123456",
-      "phone": "7709003064",
+      "phone": "+91-77090-03064",
       "dateOfBirth": "2005-04-12",
-      "address": "lohegaon , pune, maharashtra",
+      "address": "Lohegaon, Pune, Maharashtra",
       "isVerified": false,
-      "createdAt": "2025-07-31T07:18:49.080Z"
+      "createdAt": "2025-07-31T07:18:49.080Z",
+      "appointments": [
+        1754216026664,
+        1754216633232
+      ]
     }
   ],
   "appointments": [
     {
       "id": 1,
       "doctorId": 1,
-      "doctorName": "Dr. Sarah Johnson",
+      "doctorName": "Dr. Anjali Mehta",
       "specialization": "Cardiology",
-      "patientName": "John Doe",
-      "email": "john.doe@email.com",
-      "phone": "+1-555-0123",
+      "patientName": "Rohit Sharma",
+      "email": "rohit.sharma@example.in",
+      "phone": "+91-98123-45678",
       "date": "2025-07-26",
       "time": "10:00 AM",
       "status": "confirmed",
@@ -137,11 +138,11 @@
     {
       "id": 2,
       "doctorId": 2,
-      "doctorName": "Dr. Michael Chen",
+      "doctorName": "Dr. Rahul Verma",
       "specialization": "Pediatrics",
-      "patientName": "Jane Smith",
-      "email": "jane.smith@email.com",
-      "phone": "+1-555-0125",
+      "patientName": "Neha Singh",
+      "email": "neha.singh@example.in",
+      "phone": "+91-98765-43219",
       "date": "2025-07-27",
       "time": "2:30 PM",
       "status": "confirmed",
@@ -151,22 +152,67 @@
     {
       "id": 3,
       "doctorId": 3,
-      "doctorName": "Dr. Emily Rodriguez",
+      "doctorName": "Dr. Priya Nair",
       "specialization": "Mental Health",
-      "patientName": "Robert Johnson",
-      "email": "robert.johnson@email.com",
-      "phone": "+1-555-0127",
+      "patientName": "Aarav Patel",
+      "email": "aarav.patel@example.in",
+      "phone": "+91-98234-56789",
       "date": "2025-07-28",
       "time": "4:00 PM",
       "status": "pending",
       "reason": "Anxiety consultation",
       "createdAt": "2025-07-25T00:00:00Z"
+    },
+    {
+      "id": 1754216026664,
+      "patientId": 4,
+      "patientName": "Satyajeet Singh",
+      "email": "satyajeet.singh12005@gmail.com",
+      "phone": "+91-77090-03064",
+      "doctorId": 4,
+      "doctorName": "Dr. Vedant Dhore",
+      "specialization": "Neurology",
+      "date": "2025-08-13",
+      "time": "09:00 AM",
+      "reason": "Headache",
+      "status": "pending",
+      "createdAt": "2025-08-03T10:13:46.664Z"
+    },
+    {
+      "id": 1754216633232,
+      "patientId": 4,
+      "patientName": "satyajeet singh",
+      "email": "satyajeet.singh12005@gmail.com",
+      "phone": "7709003064",
+      "doctorId": 4,
+      "doctorName": "Dr. Vedant Dhore",
+      "specialization": "Neurology",
+      "date": "2025-08-20",
+      "time": "09:00 AM",
+      "reason": "headache",
+      "status": "pending",
+      "createdAt": "2025-08-03T10:23:53.232Z"
+    },
+    {
+      "id": 1754216764718,
+      "patientId": 2,
+      "patientName": "neha singh",
+      "email": "neha.singh@example.in",
+      "phone": "8787887888",
+      "doctorId": 4,
+      "doctorName": "Dr. Vedant Dhore",
+      "specialization": "Neurology",
+      "date": "2025-08-20",
+      "time": "11:30 AM",
+      "reason": "dengu",
+      "status": "pending",
+      "createdAt": "2025-08-03T10:26:04.718Z"
     }
   ],
   "users": [
     {
       "id": 1,
-      "email": "admin@doctorcare.com",
+      "email": "admin@doctorcare.in",
       "password": "admin123",
       "role": "admin",
       "name": "System Administrator",

@@ -23,16 +23,34 @@ const limiter = rateLimit({
 server.use(limiter);
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:8081',
+  'http://0.0.0.0:8081',
+  'https://doctorcare-nexus.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
-    : [ 'https://doctorcare-nexus.vercel.app/','http://localhost:8081'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin) || 
+        allowedOrigins.some(allowedOrigin => origin.startsWith(allowedOrigin))) {
+      callback(null, true);
+    } else {
+      console.log('Not allowed by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
   optionsSuccessStatus: 200
 };
+
 server.use(cors(corsOptions));
+server.options('*', cors(corsOptions)); // Enable preflight for all routes
 
 // Parse JSON bodies
 server.use(jsonServer.bodyParser);
@@ -46,7 +64,7 @@ server.post('/api/patient/login', (req, res) => {
     const token = 'mock-jwt-token-patient-' + patient.id;
     res.json({
       success: true,
-      user: { ...patient, password: undefined },
+      patient: { ...patient, password: undefined },
       token
     });
   } else {
@@ -278,44 +296,6 @@ server.get('/api/doctors/:id/appointments', (req, res) => {
   res.json(appointments);
 });
 
-// Patient signup endpoint
-server.post('/api/patient/signup', (req, res) => {
-  const { name, email, password, phone, dateOfBirth, address } = req.body;
-  
-  // Check if patient already exists
-  const existingPatient = db.patients.find(p => p.email === email);
-  if (existingPatient) {
-    return res.status(400).json({
-      success: false,
-      message: 'Patient with this email already exists'
-    });
-  }
-  
-  // Create new patient
-  const newPatient = {
-    id: db.patients.length + 1,
-    name,
-    email,
-    password,
-    phone,
-    dateOfBirth,
-    address,
-    appointments: [],
-    createdAt: new Date().toISOString()
-  };
-  
-  db.patients.push(newPatient);
-  
-  // Save to file
-  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
-  
-  const token = 'mock-jwt-token-patient-' + newPatient.id;
-  res.json({
-    success: true,
-    patient: { ...newPatient, password: undefined },
-    token
-  });
-});
 
 // Error handling middleware
 server.use((err, req, res, next) => {

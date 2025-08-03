@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, MapPin, Clock, Star, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,14 +26,17 @@ export const DoctorListPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchDoctors();
+useEffect(() => {
+    const intervalId = setInterval(fetchDoctors, 30000); // Poll every 30 seconds
+    fetchDoctors(); // Initial fetch
+    return () => clearInterval(intervalId); // Cleanup on component unmount
   }, []);
 
   const fetchDoctors = async () => {
     try {
-      const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/$/, '');
+const apiBase = import.meta.env.VITE_API_URL || '/api';
       const response = await fetch(`${apiBase}/doctors`);
       const data = await response.json();
       
@@ -55,8 +59,7 @@ export const DoctorListPage = () => {
   };
 
   const handleBookAppointment = (doctorId: number) => {
-    // Navigate to booking page with doctor ID
-    window.location.href = `/book-appointment/${doctorId}`;
+    navigate(`/book-appointment/${doctorId}`);
   };
 
   const filteredDoctors = doctors.filter(doctor => {

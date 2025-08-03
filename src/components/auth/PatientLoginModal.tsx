@@ -62,7 +62,7 @@ export const PatientLoginModal = ({ isOpen, onClose, initialLoginType = 'patient
     setIsLoading(true);
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api'.replace(/\/$/, '');
+const apiBase = import.meta.env.VITE_API_URL || '/api';
       const endpoint = loginType === 'patient' ? `${apiBase}/patient/login` : `${apiBase}/doctor/login`;
       const response = await fetch(endpoint, {
         method: 'POST',

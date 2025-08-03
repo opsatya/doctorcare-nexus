@@ -27,9 +27,30 @@ const App = () => (
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/doctors" element={<DoctorListPage />} />
-          <Route path="/book-appointment/:doctorId" element={<BookAppointmentPage />} />
-          <Route path="/appointments" element={<AppointmentsPage />} />
+          <Route 
+            path="/doctors" 
+            element={
+              <ProtectedRoute>
+                <DoctorListPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/book-appointment/:doctorId" 
+            element={
+              <ProtectedRoute>
+                <BookAppointmentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/appointments" 
+            element={
+              <ProtectedRoute>
+                <AppointmentsPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/dashboard" 
             element={

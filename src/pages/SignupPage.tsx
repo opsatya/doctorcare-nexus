@@ -63,7 +63,7 @@ export const SignupPage = () => {
     setIsLoading(true);
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api'.replace(/\/$/, '');
+const apiBase = import.meta.env.VITE_API_URL || '/api';
       const response = await fetch(`${apiBase}/doctor/signup`, {
         method: 'POST',
         headers: {
@@ -113,7 +113,7 @@ export const SignupPage = () => {
     setIsLoading(true);
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api'.replace(/\/$/, '');
+      const apiBase = import.meta.env.VITE_API_URL || '/api';
       const response = await fetch(`${apiBase}/patient/signup`, {
         method: 'POST',
         headers: {
@@ -469,7 +469,7 @@ export const SignupPage = () => {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Already have an account? </span>
-              <Link to="/" className="text-primary hover:underline font-medium">
+              <Link to={`/login?type=${userType}`} className="text-primary hover:underline font-medium">
                 Sign In
               </Link>
             </div>

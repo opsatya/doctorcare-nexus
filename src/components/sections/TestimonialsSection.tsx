@@ -3,7 +3,7 @@ import { Star, Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Avinash Singh',
+    name: 'Dipti sharma',
     role: 'Working Mother',
     content: 'DoctorCare has been a lifesaver for our family. The convenience of online consultations and the quality of care we receive is exceptional.',
     rating: 5,
