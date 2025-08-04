@@ -76,9 +76,10 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
   const fetchAppointments = async () => {
     try {
       setIsLoading(true);
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      // Ensure there's no trailing slash in the base URL
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
       
-      const response = await fetch(`${apiBase}/api/doctors/${auth.doctor?.id}/appointments`, {
+      const response = await fetch(`${apiBase}/doctors/${auth.doctor?.id}/appointments`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -89,7 +90,7 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
         appointmentsData = await response.json();
       } else {
         // Fallback to all appointments
-        const allResponse = await fetch(`${apiBase}/api/appointments`);
+        const allResponse = await fetch(`${apiBase}/appointments`);
         const allAppointments = await allResponse.json();
         appointmentsData = allAppointments.filter((apt: any) => apt.doctorId == auth.doctor?.id);
       }
@@ -150,9 +151,9 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
       const newDate = moment(start).format('YYYY-MM-DD');
       const newTime = moment(start).format('HH:mm');
 
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
       
-      const response = await fetch(`${apiBase}/api/appointments/${event.id}`, {
+      const response = await fetch(`${apiBase}/appointments/${event.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -210,9 +211,9 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
     if (!selectedEvent) return;
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
       
-      const response = await fetch(`${apiBase}/api/appointments/${selectedEvent.id}`, {
+      const response = await fetch(`${apiBase}/appointments/${selectedEvent.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
