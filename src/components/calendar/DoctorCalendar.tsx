@@ -7,6 +7,7 @@ import moment from 'moment';
 import { useRecoilValue } from 'recoil';
 import { authState } from '@/lib/recoil/atoms';
 import { useToast } from '@/hooks/use-toast';
+import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,6 +70,22 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
   const auth = useRecoilValue(authState);
   const { toast } = useToast();
 
+  const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
+    switch (message.type) {
+      case 'appointment_created':
+      case 'appointment_updated':
+        // Refresh appointments when changes occur
+        fetchAppointments();
+        toast({
+          title: 'Calendar Updated',
+          description: `Appointment has been ${message.type === 'appointment_created' ? 'created' : 'updated'}.`,
+        });
+        break;
+    }
+  }, []);
+
+  useWebSocket(handleWebSocketMessage);
+
   useEffect(() => {
     fetchAppointments();
   }, []);
@@ -78,8 +95,9 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
       setIsLoading(true);
       // Ensure there's no trailing slash in the base URL
       const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
+      const fullApiBase = apiBase.includes('/api') ? apiBase : `${apiBase}/api`;
       
-      const response = await fetch(`${apiBase}/doctors/${auth.doctor?.id}/appointments`, {
+      const response = await fetch(`${fullApiBase}/doctors/${auth.doctor?.id}/appointments`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -90,7 +108,7 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
         appointmentsData = await response.json();
       } else {
         // Fallback to all appointments
-        const allResponse = await fetch(`${apiBase}/appointments`);
+        const allResponse = await fetch(`${fullApiBase}/appointments`);
         const allAppointments = await allResponse.json();
         appointmentsData = allAppointments.filter((apt: any) => apt.doctorId == auth.doctor?.id);
       }
@@ -152,8 +170,9 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
       const newTime = moment(start).format('HH:mm');
 
       const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
+      const fullApiBase = apiBase.includes('/api') ? apiBase : `${apiBase}/api`;
       
-      const response = await fetch(`${apiBase}/appointments/${event.id}`, {
+      const response = await fetch(`${fullApiBase}/appointments/${event.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -212,8 +231,9 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
 
     try {
       const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
+      const fullApiBase = apiBase.includes('/api') ? apiBase : `${apiBase}/api`;
       
-      const response = await fetch(`${apiBase}/appointments/${selectedEvent.id}`, {
+      const response = await fetch(`${fullApiBase}/appointments/${selectedEvent.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

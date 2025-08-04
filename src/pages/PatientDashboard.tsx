@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { motion } from 'framer-motion';
@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState, clearAuthState } from '@/lib/recoil/atoms';
+import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
 
 interface Appointment {
   id: string;
@@ -37,20 +38,35 @@ export const PatientDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
+    switch (message.type) {
+      case 'appointment_created':
+      case 'appointment_updated':
+        // Refresh appointments when changes occur
+        fetchPatientAppointments();
+        toast({
+          title: 'Appointment Updated',
+          description: `Your appointment has been ${message.type === 'appointment_created' ? 'created' : 'updated'}.`,
+        });
+        break;
+    }
+  }, []);
+
+  useWebSocket(handleWebSocketMessage);
+
   useEffect(() => {
     if (auth.patient) {
-      const intervalId = setInterval(fetchPatientAppointments, 30000); // Poll every 30 seconds
-      fetchPatientAppointments(); // Initial fetch
-      return () => clearInterval(intervalId); // Cleanup on component unmount
+      fetchPatientAppointments(); // Initial fetch only
     }
   }, [auth.patient]);
 
-  const fetchPatientAppointments = async () => {
+  const fetchPatientAppointments = useCallback(async () => {
     try {
       setIsLoading(true);
-const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
+      const fullApiBase = apiBase.includes('/api') ? apiBase : `${apiBase}/api`;
       
-      const response = await fetch(`${apiBase}/patients/${auth.patient?.id}/appointments`, {
+      const response = await fetch(`${fullApiBase}/patients/${auth.patient?.id}/appointments`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -61,7 +77,7 @@ const apiBase = import.meta.env.VITE_API_URL || '/api';
         setAppointments(appointmentsData);
       } else {
         // If endpoint doesn't exist, fall back to filtering all appointments
-        const allAppointmentsResponse = await fetch(`${apiBase}/appointments`);
+        const allAppointmentsResponse = await fetch(`${fullApiBase}/appointments`);
         const allAppointments = await allAppointmentsResponse.json();
         const patientAppointments = allAppointments.filter(
           (apt: any) => apt.email === auth.patient?.email
@@ -77,7 +93,7 @@ const apiBase = import.meta.env.VITE_API_URL || '/api';
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [auth.patient?.id, auth.patient?.email, auth.token, toast]);
 
   const handleLogout = () => {
     setAuth(clearAuthState());

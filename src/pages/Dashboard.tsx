@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { motion } from 'framer-motion';
@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState } from '@/lib/recoil/atoms';
+import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
 
 interface Appointment {
   id: string;
@@ -44,19 +45,34 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-useEffect(() => {
-    const intervalId = setInterval(fetchDashboardData, 30000); // Poll every 30 seconds
-    fetchDashboardData(); // Initial fetch
-    return () => clearInterval(intervalId); // Cleanup on component unmount
+const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
+    switch (message.type) {
+      case 'appointment_created':
+      case 'appointment_updated':
+        // Refresh appointments when changes occur
+        fetchDashboardData();
+        toast({
+          title: 'Appointment Updated',
+          description: `Appointment has been ${message.type === 'appointment_created' ? 'created' : 'updated'}.`,
+        });
+        break;
+    }
   }, []);
 
-  const fetchDashboardData = async () => {
+  useWebSocket(handleWebSocketMessage);
+
+  useEffect(() => {
+    fetchDashboardData(); // Initial fetch only
+  }, []);
+
+  const fetchDashboardData = useCallback(async () => {
     try {
       setIsLoading(true);
-const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
+      const fullApiBase = apiBase.includes('/api') ? apiBase : `${apiBase}/api`;
       
       // Fetch doctor's appointments
-      const appointmentsResponse = await fetch(`${apiBase}/doctors/${auth.doctor?.id}/appointments`, {
+      const appointmentsResponse = await fetch(`${fullApiBase}/doctors/${auth.doctor?.id}/appointments`, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -91,7 +107,7 @@ const apiBase = import.meta.env.VITE_API_URL || '/api';
         });
       } else {
         // Fallback to filtering all appointments if endpoint doesn't exist
-        const allAppointmentsResponse = await fetch(`${apiBase}/appointments`);
+        const allAppointmentsResponse = await fetch(`${fullApiBase}/appointments`);
         const allAppointments = await allAppointmentsResponse.json();
         const doctorAppointments = allAppointments.filter((apt: any) => apt.doctorId == auth.doctor?.id);
         
@@ -130,7 +146,7 @@ const apiBase = import.meta.env.VITE_API_URL || '/api';
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [auth.doctor?.id, auth.token, toast]);
 
   const handleLogout = () => {
     // Clear localStorage based on user type

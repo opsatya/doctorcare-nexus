@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
+const WebSocket = require('ws');
 
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
@@ -246,13 +247,26 @@ server.post('/api/appointments', (req, res) => {
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
+  // Broadcast new appointment to doctor and patient
+  broadcastToDoctor(doctorId, {
+    type: 'appointment_created',
+    appointment: newAppointment
+  });
+  
+  if (patient) {
+    broadcastToPatient(patient.id, {
+      type: 'appointment_created',
+      appointment: newAppointment
+    });
+  }
+  
   res.json(newAppointment);
 });
 
-// Update appointment status
+// Update appointment (status, date, time, etc.)
 server.patch('/api/appointments/:id', (req, res) => {
   const appointmentId = parseInt(req.params.id);
-  const { status } = req.body;
+  const updates = req.body;
   
   const appointmentIndex = db.appointments.findIndex(a => a.id === appointmentId);
   
@@ -260,12 +274,27 @@ server.patch('/api/appointments/:id', (req, res) => {
     return res.status(404).json({ error: 'Appointment not found' });
   }
   
-  db.appointments[appointmentIndex].status = status;
+  // Update appointment with provided fields
+  Object.assign(db.appointments[appointmentIndex], updates);
+  const updatedAppointment = db.appointments[appointmentIndex];
   
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
-  res.json(db.appointments[appointmentIndex]);
+  // Broadcast update to doctor and patient
+  broadcastToDoctor(updatedAppointment.doctorId, {
+    type: 'appointment_updated',
+    appointment: updatedAppointment
+  });
+  
+  if (updatedAppointment.patientId) {
+    broadcastToPatient(updatedAppointment.patientId, {
+      type: 'appointment_updated',
+      appointment: updatedAppointment
+    });
+  }
+  
+  res.json(updatedAppointment);
 });
 
 // Use default middleware
@@ -306,7 +335,7 @@ server.use((err, req, res, next) => {
 const port = process.env.PORT || 3001;
 const host = process.env.HOST || '0.0.0.0';
 
-server.listen(port, host, () => {
+const httpServer = server.listen(port, host, () => {
   console.log(`Server is running on http://${host}:${port}`);
   console.log(`Available endpoints:`);
   console.log(`  POST /api/doctor/login`);
@@ -315,4 +344,76 @@ server.listen(port, host, () => {
   console.log(`  GET  /api/doctors`);
   console.log(`  GET  /api/patients`);
   console.log(`  GET  /api/appointments`);
+});
+
+// WebSocket Server
+const wss = new WebSocket.Server({ server: httpServer });
+
+// Store connected clients by user type and ID
+const clients = {
+  doctors: new Map(),
+  patients: new Map()
+};
+
+// Helper function to broadcast to all clients
+function broadcast(message) {
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(message));
+    }
+  });
+}
+
+// Helper function to broadcast to specific doctor
+function broadcastToDoctor(doctorId, message) {
+  const client = clients.doctors.get(doctorId);
+  if (client && client.readyState === WebSocket.OPEN) {
+    client.send(JSON.stringify(message));
+  }
+}
+
+// Helper function to broadcast to specific patient
+function broadcastToPatient(patientId, message) {
+  const client = clients.patients.get(patientId);
+  if (client && client.readyState === WebSocket.OPEN) {
+    client.send(JSON.stringify(message));
+  }
+}
+
+wss.on('connection', (ws, req) => {
+  console.log('New WebSocket connection');
+  
+  ws.on('message', (data) => {
+    try {
+      const message = JSON.parse(data);
+      
+      if (message.type === 'auth') {
+        // Store client by user type and ID
+        if (message.userType === 'doctor' && message.doctorId) {
+          clients.doctors.set(message.doctorId, ws);
+          ws.userId = message.doctorId;
+          ws.userType = 'doctor';
+          console.log(`Doctor ${message.doctorId} connected via WebSocket`);
+        } else if (message.userType === 'patient' && message.patientId) {
+          clients.patients.set(message.patientId, ws);
+          ws.userId = message.patientId;
+          ws.userType = 'patient';
+          console.log(`Patient ${message.patientId} connected via WebSocket`);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing WebSocket message:', error);
+    }
+  });
+  
+  ws.on('close', () => {
+    // Remove client from maps
+    if (ws.userType === 'doctor' && ws.userId) {
+      clients.doctors.delete(ws.userId);
+      console.log(`Doctor ${ws.userId} disconnected`);
+    } else if (ws.userType === 'patient' && ws.userId) {
+      clients.patients.delete(ws.userId);
+      console.log(`Patient ${ws.userId} disconnected`);
+    }
+  });
 });
