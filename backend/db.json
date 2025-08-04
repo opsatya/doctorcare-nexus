@@ -69,13 +69,15 @@
       "specialization": "Neurology",
       "licenseNumber": "12345-Y",
       "phone": "+91-84463-08539",
+      "consultationFee": 700,
       "isVerified": false,
-      "createdAt": "2025-07-31T07:22:21.252Z",
       "appointments": [
         1754216026664,
         1754216633232,
         1754216764718
-      ]
+      ],
+      "createdAt": "2025-07-31T07:22:21.252Z",
+      "about": "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy."
     }
   ],
   "patients": [
