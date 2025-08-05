@@ -38,7 +38,10 @@
         "Saturday"
       ],
       "about": "Pediatric specialist focused on child development and family-centered care.",
-      "createdAt": "2025-01-10T00:00:00Z"
+      "createdAt": "2025-01-10T00:00:00Z",
+      "appointments": [
+        1754289744690
+      ]
     },
     {
       "id": 3,
@@ -59,7 +62,10 @@
         "Thursday"
       ],
       "about": "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy.",
-      "createdAt": "2025-01-01T00:00:00Z"
+      "createdAt": "2025-01-01T00:00:00Z",
+      "appointments": [
+        1754292074754
+      ]
     },
     {
       "id": 4,
@@ -74,7 +80,8 @@
       "appointments": [
         1754216026664,
         1754216633232,
-        1754216764718
+        1754216764718,
+        1754295357006
       ],
       "createdAt": "2025-07-31T07:22:21.252Z",
       "about": "Licensed psychiatrist specializing in anxiety, depression, and cognitive behavioral therapy."
@@ -118,7 +125,10 @@
       "createdAt": "2025-07-31T07:18:49.080Z",
       "appointments": [
         1754216026664,
-        1754216633232
+        1754216633232,
+        1754289744690,
+        1754292074754,
+        1754295357006
       ]
     }
   ],
@@ -161,7 +171,7 @@
       "phone": "+91-98234-56789",
       "date": "2025-07-28",
       "time": "4:00 PM",
-      "status": "pending",
+      "status": "cancelled",
       "reason": "Anxiety consultation",
       "createdAt": "2025-07-25T00:00:00Z"
     },
@@ -209,6 +219,51 @@
       "reason": "dengu",
       "status": "pending",
       "createdAt": "2025-08-03T10:26:04.718Z"
+    },
+    {
+      "id": 1754289744690,
+      "patientId": 4,
+      "patientName": "satyajeet singh",
+      "email": "satyajeet.singh12005@gmail.com",
+      "phone": "7709003064",
+      "doctorId": 2,
+      "doctorName": "Dr. Rahul Verma",
+      "specialization": "Pediatrics",
+      "date": "2025-08-15",
+      "time": "09:30 AM",
+      "reason": "having a headache",
+      "status": "pending",
+      "createdAt": "2025-08-04T06:42:24.690Z"
+    },
+    {
+      "id": 1754292074754,
+      "patientId": 4,
+      "patientName": "satyajeet singh",
+      "email": "satyajeet.singh12005@gmail.com",
+      "phone": "+917709003064",
+      "doctorId": 3,
+      "doctorName": "Dr. Priya Nair",
+      "specialization": "Mental Health",
+      "date": "2025-08-07",
+      "time": "11:00 AM",
+      "reason": "malaria",
+      "status": "pending",
+      "createdAt": "2025-08-04T07:21:14.754Z"
+    },
+    {
+      "id": 1754295357006,
+      "patientId": 4,
+      "patientName": "satyajeet singh",
+      "email": "satyajeet.singh12005@gmail.com",
+      "phone": "+917709003064",
+      "doctorId": 4,
+      "doctorName": "Dr. Vedant Dhore",
+      "specialization": "Neurology",
+      "date": "2025-08-07",
+      "time": "11:00 AM",
+      "reason": "sgsg sdhjfsd ",
+      "status": "pending",
+      "createdAt": "2025-08-04T08:15:57.006Z"
     }
   ],
   "users": [

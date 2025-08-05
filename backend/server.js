@@ -247,7 +247,8 @@ server.post('/api/appointments', (req, res) => {
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
-  // Broadcast new appointment to doctor and patient
+// Broadcast new appointment to doctor and patient
+  console.log('New appointment created, broadcasting:', newAppointment);
   broadcastToDoctor(doctorId, {
     type: 'appointment_created',
     appointment: newAppointment
@@ -281,7 +282,8 @@ server.patch('/api/appointments/:id', (req, res) => {
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
-  // Broadcast update to doctor and patient
+// Broadcast update to doctor and patient
+  console.log('Appointment updated, broadcasting:', updatedAppointment);
   broadcastToDoctor(updatedAppointment.doctorId, {
     type: 'appointment_updated',
     appointment: updatedAppointment
@@ -368,6 +370,7 @@ function broadcast(message) {
 function broadcastToDoctor(doctorId, message) {
   const client = clients.doctors.get(doctorId);
   if (client && client.readyState === WebSocket.OPEN) {
+console.log(`Broadcast to doctor ${doctorId}`, message);
     client.send(JSON.stringify(message));
   }
 }
@@ -376,6 +379,7 @@ function broadcastToDoctor(doctorId, message) {
 function broadcastToPatient(patientId, message) {
   const client = clients.patients.get(patientId);
   if (client && client.readyState === WebSocket.OPEN) {
+console.log(`Broadcast to patient ${patientId}`, message);
     client.send(JSON.stringify(message));
   }
 }

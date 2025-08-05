@@ -33,7 +33,7 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
       ws.current = new WebSocket(wsUrl);
 
       ws.current.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('WebSocket connected successfully');
         reconnectAttempts.current = 0;
         
         // Authenticate the connection
@@ -44,6 +44,7 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
             doctorId: auth.doctor?.id,
             patientId: auth.patient?.id,
           };
+          console.log('Sending WebSocket auth message:', authMessage);
           ws.current?.send(JSON.stringify(authMessage));
         }
       };
@@ -51,6 +52,7 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
       ws.current.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          console.log('WebSocket message received:', message);
           onMessage(message);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
@@ -58,14 +60,17 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
       };
 
       ws.current.onclose = () => {
-        console.log('WebSocket disconnected');
+        console.log('WebSocket disconnected, attempt:', reconnectAttempts.current);
         
         // Attempt to reconnect if not manually closed
         if (reconnectAttempts.current < maxReconnectAttempts) {
           reconnectAttempts.current++;
+          console.log(`Attempting to reconnect in ${3000 * reconnectAttempts.current}ms`);
           setTimeout(() => {
             connect();
           }, 3000 * reconnectAttempts.current); // Exponential backoff
+        } else {
+          console.log('Max reconnection attempts reached');
         }
       };
 

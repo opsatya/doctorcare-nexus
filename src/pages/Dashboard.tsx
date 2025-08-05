@@ -46,9 +46,11 @@ export const Dashboard = () => {
   const { toast } = useToast();
 
 const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
+    console.log('Dashboard received WebSocket message:', message);
     switch (message.type) {
       case 'appointment_created':
       case 'appointment_updated':
+        console.log('Refreshing dashboard data due to appointment change');
         // Refresh appointments when changes occur
         fetchDashboardData();
         toast({
@@ -56,8 +58,10 @@ const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
           description: `Appointment has been ${message.type === 'appointment_created' ? 'created' : 'updated'}.`,
         });
         break;
+      default:
+        console.log('Unhandled WebSocket message type:', message.type);
     }
-  }, []);
+  }, [toast]);
 
   useWebSocket(handleWebSocketMessage);
 
