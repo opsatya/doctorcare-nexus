@@ -72,6 +72,26 @@ export const loadingState = atom<boolean>({
   default: false,
 });
 
+// Doctor Appointments Interface
+export interface DoctorAppointment {
+  type: ReactNode;
+  id: string;
+  patientName: string;
+  email: string;
+  phone: string;
+  reason: string;
+  status: 'confirmed' | 'pending' | 'cancelled';
+  doctorId: string;
+  time: string;
+  date: string;
+}
+
+// Doctor appointments global state
+export const doctorAppointmentsState = atom<DoctorAppointment[]>({
+  key: 'doctorAppointmentsState',
+  default: [], // initial empty array
+});
+
 // Utility function to clear auth state and localStorage
 export const clearAuthState = () => {
   localStorage.removeItem('doctorcare_auth');

@@ -72,7 +72,9 @@ export const BookAppointmentPage = () => {
 
   const fetchDoctor = async () => {
     try {
-const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const apiBase = import.meta.env.DEV 
+        ? '/api' 
+        : (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api').replace(/\/+$/, '');
       const response = await fetch(`${apiBase}/doctors/${doctorId}`);
       const data = await response.json();
       setDoctor(data);
@@ -108,8 +110,10 @@ const apiBase = import.meta.env.VITE_API_URL || '/api';
         status: 'pending',
       };
 
-const apiBase = import.meta.env.VITE_API_URL || '/api';
-    const response = await fetch(`${apiBase}/appointments`, {
+      const apiBase = import.meta.env.DEV 
+        ? '/api' 
+        : (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api').replace(/\/+$/, '');
+      const response = await fetch(`${apiBase}/appointments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 import { authState } from '@/lib/recoil/atoms';
 
@@ -8,11 +8,55 @@ export interface WebSocketMessage {
   data?: any;
 }
 
-export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => {
+interface WebSocketContextType {
+  isConnected: boolean;
+  sendMessage: (message: any) => void;
+  addMessageListener: (listener: (message: WebSocketMessage) => void) => () => void;
+}
+
+const WebSocketContext = createContext<WebSocketContextType | null>(null);
+
+export const useWebSocketContext = () => {
+  const context = useContext(WebSocketContext);
+  if (!context) {
+    throw new Error('useWebSocketContext must be used within a WebSocketProvider');
+  }
+  return context;
+};
+
+interface WebSocketProviderProps {
+  children: React.ReactNode;
+}
+
+export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
   const ws = useRef<WebSocket | null>(null);
   const auth = useRecoilValue(authState);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
+  const messageListeners = useRef<Set<(message: WebSocketMessage) => void>>(new Set());
+
+  const sendMessage = useCallback((message: any) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(message));
+    }
+  }, []);
+
+  const addMessageListener = useCallback((listener: (message: WebSocketMessage) => void) => {
+    messageListeners.current.add(listener);
+    return () => {
+      messageListeners.current.delete(listener);
+    };
+  }, []);
+
+  const notifyListeners = useCallback((message: WebSocketMessage) => {
+    messageListeners.current.forEach(listener => {
+      try {
+        listener(message);
+      } catch (error) {
+        console.error('Error in WebSocket message listener:', error);
+      }
+    });
+  }, []);
 
   const connect = useCallback(() => {
     if (ws.current?.readyState === WebSocket.OPEN) {
@@ -61,7 +105,9 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
             patientId: auth.patient?.id,
           };
           console.log('Sending WebSocket auth message:', authMessage);
-          ws.current?.send(JSON.stringify(authMessage));
+          if (ws.current?.readyState === WebSocket.OPEN) {
+            ws.current.send(JSON.stringify(authMessage));
+          }
         }
       };
 
@@ -69,7 +115,7 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
         try {
           const message = JSON.parse(event.data);
           console.log('WebSocket message received:', message);
-          onMessage(message);
+          notifyListeners(message);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
@@ -79,13 +125,13 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
         console.log('WebSocket disconnected, attempt:', reconnectAttempts.current);
         
         // Attempt to reconnect if not manually closed
-        if (reconnectAttempts.current < maxReconnectAttempts) {
+        if (reconnectAttempts.current < maxReconnectAttempts && auth.isAuthenticated) {
           reconnectAttempts.current++;
           console.log(`Attempting to reconnect in ${3000 * reconnectAttempts.current}ms`);
           setTimeout(() => {
             connect();
           }, 3000 * reconnectAttempts.current); // Exponential backoff
-        } else {
+        } else if (reconnectAttempts.current >= maxReconnectAttempts) {
           console.log('Max reconnection attempts reached');
         }
       };
@@ -96,7 +142,7 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
     } catch (error) {
       console.error('Failed to create WebSocket connection:', error);
     }
-  }, [auth, onMessage]);
+  }, [auth.isAuthenticated, auth.doctor?.id, auth.patient?.id]);
 
   const disconnect = useCallback(() => {
     if (ws.current) {
@@ -117,9 +163,15 @@ export const useWebSocket = (onMessage: (message: WebSocketMessage) => void) => 
     };
   }, [auth.isAuthenticated, connect, disconnect]);
 
-  return {
+  const contextValue: WebSocketContextType = {
     isConnected: ws.current?.readyState === WebSocket.OPEN,
-    connect,
-    disconnect,
+    sendMessage,
+    addMessageListener,
   };
+
+  return (
+    <WebSocketContext.Provider value={contextValue}>
+      {children}
+    </WebSocketContext.Provider>
+  );
 };

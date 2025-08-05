@@ -199,8 +199,8 @@
       "doctorId": 4,
       "doctorName": "Dr. Vedant Dhore",
       "specialization": "Neurology",
-      "date": "2025-08-20",
-      "time": "09:00 AM",
+      "date": "2025-08-07",
+      "time": "09:00",
       "reason": "headache",
       "status": "pending",
       "createdAt": "2025-08-03T10:23:53.232Z"
@@ -214,8 +214,8 @@
       "doctorId": 4,
       "doctorName": "Dr. Vedant Dhore",
       "specialization": "Neurology",
-      "date": "2025-08-20",
-      "time": "11:30 AM",
+      "date": "2025-08-08",
+      "time": "11:30",
       "reason": "dengu",
       "status": "pending",
       "createdAt": "2025-08-03T10:26:04.718Z"
@@ -259,8 +259,8 @@
       "doctorId": 4,
       "doctorName": "Dr. Vedant Dhore",
       "specialization": "Neurology",
-      "date": "2025-08-07",
-      "time": "11:00 AM",
+      "date": "2025-08-08",
+      "time": "07:30",
       "reason": "sgsg sdhjfsd ",
       "status": "pending",
       "createdAt": "2025-08-04T08:15:57.006Z"

@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { motion } from 'framer-motion';
 import { 
   Calendar, 
@@ -16,17 +16,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { authState } from '@/lib/recoil/atoms';
-import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
-
-interface Appointment {
-  id: string;
-  patientName: string;
-  date: string;
-  time: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
-  type: string;
-}
+import { authState, doctorAppointmentsState, DoctorAppointment } from '@/lib/recoil/atoms';
+import { fetchDoctorAppointments } from '@/lib/services/appointmentService';
+import { useWebSocketContext, WebSocketMessage } from '@/lib/contexts/WebSocketContext';
 
 interface Stats {
   totalPatients: number;
@@ -36,21 +28,79 @@ interface Stats {
 }
 
 export const Dashboard = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   const auth = useRecoilValue(authState);
   const setAuth = useSetRecoilState(authState);
+  const [appointments, setAppointments] = useRecoilState(doctorAppointmentsState);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
+  // Compute stats dynamically based on appointments array
+  const computedStats = useMemo(() => {
+    if (appointments.length === 0) return null;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const weekStart = startOfWeek.toISOString().split('T')[0];
+
+    const appointmentsToday = appointments.filter(apt => apt.date === today).length;
+    const appointmentsThisWeek = appointments.filter(apt => apt.date >= weekStart).length;
+    const pendingAppointments = appointments.filter(apt => apt.status === 'pending').length;
+
+    return {
+      totalPatients: new Set(appointments.map(apt => apt.email)).size,
+      appointmentsToday,
+      appointmentsThisWeek,
+      pendingAppointments
+    };
+  }, [appointments]);
+
+  // Update stats when computed stats change
+  useEffect(() => {
+    if (computedStats) {
+      console.log('Updating stats based on appointments:', computedStats);
+      setStats(computedStats);
+    }
+  }, [computedStats]);
+
+  const { addMessageListener } = useWebSocketContext();
+
+  // Refresh appointments using shared service and update Recoil state
+  const fetchDashboardData = useCallback(async () => {
+    if (!auth.doctor?.id || !auth.token) {
+      console.log('Cannot fetch dashboard data: missing doctor ID or token');
+      return;
+    }
+    
+    try {
+      console.log('Fetching dashboard data for doctor:', auth.doctor.id);
+      setIsLoading(true);
+      
+      const freshAppointments = await fetchDoctorAppointments(auth.doctor.id, auth.token);
+      console.log('Fresh appointments fetched:', freshAppointments);
+      
+      setAppointments(freshAppointments);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast({
+        title: 'Error loading appointments',
+        description: 'Could not load dashboard data.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [auth.doctor?.id, auth.token, setAppointments, toast]);
+
+  const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
     console.log('Dashboard received WebSocket message:', message);
     switch (message.type) {
       case 'appointment_created':
       case 'appointment_updated':
-        console.log('Refreshing dashboard data due to appointment change');
+        console.log('Refreshing dashboard data due to appointment change:', message);
         // Refresh appointments when changes occur
         fetchDashboardData();
         toast({
@@ -61,96 +111,17 @@ const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
       default:
         console.log('Unhandled WebSocket message type:', message.type);
     }
-  }, [toast]);
+  }, [fetchDashboardData, toast]);
 
-  useWebSocket(handleWebSocketMessage);
+  // Subscribe to WebSocket messages
+  useEffect(() => {
+    const unsubscribe = addMessageListener(handleWebSocketMessage);
+    return unsubscribe;
+  }, [addMessageListener, handleWebSocketMessage]);
 
   useEffect(() => {
     fetchDashboardData(); // Initial fetch only
-  }, []);
-
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
-      const fullApiBase = apiBase.includes('/api') ? apiBase : `${apiBase}/api`;
-      
-      // Fetch doctor's appointments
-      const appointmentsResponse = await fetch(`${fullApiBase}/doctors/${auth.doctor?.id}/appointments`, {
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-        },
-      });
-
-      if (appointmentsResponse.ok) {
-        const appointmentsData = await appointmentsResponse.json();
-        setAppointments(appointmentsData.map((apt: any) => ({
-          id: apt.id,
-          patientName: apt.patientName,
-          date: apt.date,
-          time: apt.time,
-          status: apt.status,
-          type: apt.reason || 'Consultation'
-        })));
-
-        // Calculate stats from appointments
-        const today = new Date().toISOString().split('T')[0];
-        const startOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-        const weekStart = startOfWeek.toISOString().split('T')[0];
-
-        const appointmentsToday = appointmentsData.filter((apt: any) => apt.date === today).length;
-        const appointmentsThisWeek = appointmentsData.filter((apt: any) => apt.date >= weekStart).length;
-        const pendingAppointments = appointmentsData.filter((apt: any) => apt.status === 'pending').length;
-
-        setStats({
-          totalPatients: new Set(appointmentsData.map((apt: any) => apt.email)).size,
-          appointmentsToday,
-          appointmentsThisWeek,
-          pendingAppointments
-        });
-      } else {
-        // Fallback to filtering all appointments if endpoint doesn't exist
-        const allAppointmentsResponse = await fetch(`${fullApiBase}/appointments`);
-        const allAppointments = await allAppointmentsResponse.json();
-        const doctorAppointments = allAppointments.filter((apt: any) => apt.doctorId == auth.doctor?.id);
-        
-        setAppointments(doctorAppointments.map((apt: any) => ({
-          id: apt.id,
-          patientName: apt.patientName,
-          date: apt.date,
-          time: apt.time,
-          status: apt.status,
-          type: apt.reason || 'Consultation'
-        })));
-
-        // Calculate stats
-        const today = new Date().toISOString().split('T')[0];
-        const startOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-        const weekStart = startOfWeek.toISOString().split('T')[0];
-
-        const appointmentsToday = doctorAppointments.filter((apt: any) => apt.date === today).length;
-        const appointmentsThisWeek = doctorAppointments.filter((apt: any) => apt.date >= weekStart).length;
-        const pendingAppointments = doctorAppointments.filter((apt: any) => apt.status === 'pending').length;
-
-        setStats({
-          totalPatients: new Set(doctorAppointments.map((apt: any) => apt.email)).size,
-          appointmentsToday,
-          appointmentsThisWeek,
-          pendingAppointments
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error loading data',
-        description: 'Could not load dashboard data.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [auth.doctor?.id, auth.token, toast]);
+  }, [fetchDashboardData]);
 
   const handleLogout = () => {
     // Clear localStorage based on user type
@@ -339,7 +310,7 @@ const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
                           {appointment.patientName}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {appointment.type}
+                          {appointment.reason}
                         </p>
                       </div>
                       <div className="flex items-center space-x-4">
