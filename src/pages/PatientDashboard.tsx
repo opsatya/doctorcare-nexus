@@ -1,106 +1,54 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { motion } from 'framer-motion';
 import { 
   Calendar, 
-  Clock, 
-  User,
+  User, 
   LogOut, 
+  Plus, 
+  FileText,
   Stethoscope,
-  Bell,
-  Plus,
+  Clock,
+  CheckCircle,
+  XCircle,
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { authState, clearAuthState } from '@/lib/recoil/atoms';
-import { useWebSocket, WebSocketMessage } from '@/hooks/useWebSocket';
+import { authState } from '@/lib/recoil/atoms';
+import { useAppointments } from '@/hooks/useAppointments';
 
-interface Appointment {
-  id: string;
-  doctorName: string;
-  specialization: string;
-  date: string;
-  time: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
-  reason: string;
-}
-
-export const PatientDashboard = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
+export const PatientDashboard: React.FC = () => {
   const auth = useRecoilValue(authState);
   const setAuth = useSetRecoilState(authState);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { appointments, isLoading, refreshAppointments, stats } = useAppointments();
 
-  const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
-    switch (message.type) {
-      case 'appointment_created':
-      case 'appointment_updated':
-        // Refresh appointments when changes occur
-        fetchPatientAppointments();
-        toast({
-          title: 'Appointment Updated',
-          description: `Your appointment has been ${message.type === 'appointment_created' ? 'created' : 'updated'}.`,
-        });
-        break;
-    }
-  }, []);
-
-  useWebSocket(handleWebSocketMessage);
-
+  // Load appointments on component mount
   useEffect(() => {
-    if (auth.patient) {
-      fetchPatientAppointments(); // Initial fetch only
-    }
-  }, [auth.patient]);
-
-  const fetchPatientAppointments = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const apiBase = (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001').replace(/\/+$/, '');
-      const fullApiBase = apiBase.includes('/api') ? apiBase : `${apiBase}/api`;
-      
-      const response = await fetch(`${fullApiBase}/patients/${auth.patient?.id}/appointments`, {
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-        },
-      });
-
-      if (response.ok) {
-        const appointmentsData = await response.json();
-        setAppointments(appointmentsData);
-      } else {
-        // If endpoint doesn't exist, fall back to filtering all appointments
-        const allAppointmentsResponse = await fetch(`${fullApiBase}/appointments`);
-        const allAppointments = await allAppointmentsResponse.json();
-        const patientAppointments = allAppointments.filter(
-          (apt: any) => apt.email === auth.patient?.email
-        );
-        setAppointments(patientAppointments);
-      }
-    } catch (error) {
-      toast({
-        title: 'Error loading appointments',
-        description: 'Could not load your appointments.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [auth.patient?.id, auth.patient?.email, auth.token, toast]);
+    refreshAppointments();
+  }, [refreshAppointments]);
 
   const handleLogout = () => {
-    setAuth(clearAuthState());
+    localStorage.removeItem('doctorcare_auth');
+    localStorage.removeItem('doctorcare_patient_auth');
+    
+    setAuth({
+      isAuthenticated: false,
+      doctor: null,
+      patient: null,
+      token: null,
+    });
+    
     toast({
       title: 'Logged out',
       description: 'Goodbye!',
     });
+    
     navigate('/');
   };
 
@@ -131,7 +79,6 @@ export const PatientDashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Bell className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
               <div className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span className="text-sm font-medium">{auth.patient?.name}</span>
@@ -193,7 +140,7 @@ export const PatientDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-foreground">Total Appointments</h3>
-                  <p className="text-2xl font-bold text-primary">{appointments.length}</p>
+                  <p className="text-2xl font-bold text-primary">{stats.total}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-primary" />
               </div>
@@ -206,7 +153,7 @@ export const PatientDashboard = () => {
                 <div>
                   <h3 className="font-semibold text-foreground">Pending</h3>
                   <p className="text-2xl font-bold text-orange-600">
-                    {appointments.filter(apt => apt.status === 'pending').length}
+                    {stats.pending}
                   </p>
                 </div>
                 <Clock className="h-8 w-8 text-orange-600" />
@@ -246,10 +193,10 @@ export const PatientDashboard = () => {
                     >
                       <div className="flex-1">
                         <h4 className="font-medium text-foreground">
-                          {appointment.doctorName}
+                          {appointment.doctorName || 'Dr. Unknown'}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {appointment.specialization} • {appointment.reason}
+                          {appointment.specialization || 'General'} • {appointment.reason}
                         </p>
                       </div>
                       <div className="flex items-center space-x-4">

@@ -25,6 +25,21 @@ export interface AuthState {
   token: string | null;
 }
 
+// Unified appointment interface for both doctor and patient views
+export interface Appointment {
+  id: string;
+  patientName: string;
+  doctorName?: string;
+  doctorId: string;
+  email: string;
+  phone: string;
+  reason: string;
+  status: 'confirmed' | 'pending' | 'cancelled';
+  date: string;
+  time: string;
+  specialization?: string;
+}
+
 // Helper function to get initial auth state from localStorage
 const getInitialAuthState = (): AuthState => {
   try {
@@ -72,24 +87,16 @@ export const loadingState = atom<boolean>({
   default: false,
 });
 
-// Doctor Appointments Interface
-export interface DoctorAppointment {
-  type: ReactNode;
-  id: string;
-  patientName: string;
-  email: string;
-  phone: string;
-  reason: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
-  doctorId: string;
-  time: string;
-  date: string;
-}
+// Unified appointments global state - shared across all components
+export const appointmentsState = atom<Appointment[]>({
+  key: 'appointmentsState',
+  default: [],
+});
 
-// Doctor appointments global state
-export const doctorAppointmentsState = atom<DoctorAppointment[]>({
-  key: 'doctorAppointmentsState',
-  default: [], // initial empty array
+// Loading state for appointments
+export const appointmentsLoadingState = atom<boolean>({
+  key: 'appointmentsLoadingState',
+  default: false,
 });
 
 // Utility function to clear auth state and localStorage

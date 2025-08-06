@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { motion } from 'framer-motion';
 import { 
   Calendar, 
@@ -16,112 +16,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { authState, doctorAppointmentsState, DoctorAppointment } from '@/lib/recoil/atoms';
-import { fetchDoctorAppointments } from '@/lib/services/appointmentService';
-import { useWebSocketContext, WebSocketMessage } from '@/lib/contexts/WebSocketContext';
-
-interface Stats {
-  totalPatients: number;
-  appointmentsToday: number;
-  appointmentsThisWeek: number;
-  pendingAppointments: number;
-}
+import { authState } from '@/lib/recoil/atoms';
+import { useAppointments } from '@/hooks/useAppointments';
+import { AppointmentActions } from '@/components/ui/appointment-actions';
 
 export const Dashboard = () => {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
   const auth = useRecoilValue(authState);
   const setAuth = useSetRecoilState(authState);
-  const [appointments, setAppointments] = useRecoilState(doctorAppointmentsState);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { appointments, isLoading, refreshAppointments, updateAppointment, stats } = useAppointments();
 
-  // Compute stats dynamically based on appointments array
-  const computedStats = useMemo(() => {
-    if (appointments.length === 0) return null;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const startOfWeek = new Date();
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-    const weekStart = startOfWeek.toISOString().split('T')[0];
-
-    const appointmentsToday = appointments.filter(apt => apt.date === today).length;
-    const appointmentsThisWeek = appointments.filter(apt => apt.date >= weekStart).length;
-    const pendingAppointments = appointments.filter(apt => apt.status === 'pending').length;
-
-    return {
-      totalPatients: new Set(appointments.map(apt => apt.email)).size,
-      appointmentsToday,
-      appointmentsThisWeek,
-      pendingAppointments
-    };
-  }, [appointments]);
-
-  // Update stats when computed stats change
+  // Load appointments on component mount
   useEffect(() => {
-    if (computedStats) {
-      console.log('Updating stats based on appointments:', computedStats);
-      setStats(computedStats);
-    }
-  }, [computedStats]);
-
-  const { addMessageListener } = useWebSocketContext();
-
-  // Refresh appointments using shared service and update Recoil state
-  const fetchDashboardData = useCallback(async () => {
-    if (!auth.doctor?.id || !auth.token) {
-      console.log('Cannot fetch dashboard data: missing doctor ID or token');
-      return;
-    }
-    
-    try {
-      console.log('Fetching dashboard data for doctor:', auth.doctor.id);
-      setIsLoading(true);
-      
-      const freshAppointments = await fetchDoctorAppointments(auth.doctor.id, auth.token);
-      console.log('Fresh appointments fetched:', freshAppointments);
-      
-      setAppointments(freshAppointments);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      toast({
-        title: 'Error loading appointments',
-        description: 'Could not load dashboard data.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [auth.doctor?.id, auth.token, setAppointments, toast]);
-
-  const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
-    console.log('Dashboard received WebSocket message:', message);
-    switch (message.type) {
-      case 'appointment_created':
-      case 'appointment_updated':
-        console.log('Refreshing dashboard data due to appointment change:', message);
-        // Refresh appointments when changes occur
-        fetchDashboardData();
-        toast({
-          title: 'Appointment Updated',
-          description: `Appointment has been ${message.type === 'appointment_created' ? 'created' : 'updated'}.`,
-        });
-        break;
-      default:
-        console.log('Unhandled WebSocket message type:', message.type);
-    }
-  }, [fetchDashboardData, toast]);
-
-  // Subscribe to WebSocket messages
-  useEffect(() => {
-    const unsubscribe = addMessageListener(handleWebSocketMessage);
-    return unsubscribe;
-  }, [addMessageListener, handleWebSocketMessage]);
-
-  useEffect(() => {
-    fetchDashboardData(); // Initial fetch only
-  }, [fetchDashboardData]);
+    refreshAppointments();
+  }, [refreshAppointments]);
 
   const handleLogout = () => {
     // Clear localStorage based on user type
@@ -215,66 +124,64 @@ export const Dashboard = () => {
         </motion.div>
 
         {/* Stats Cards */}
-        {stats && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-          >
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
-                <Users className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalPatients}</div>
-                <p className="text-xs text-muted-foreground">
-                  Registered patients
-                </p>
-              </CardContent>
-            </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+              <Users className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalPatients}</div>
+              <p className="text-xs text-muted-foreground">
+                Registered patients
+              </p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
-                <Calendar className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.appointmentsToday}</div>
-                <p className="text-xs text-muted-foreground">
-                  Scheduled for today
-                </p>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
+              <Calendar className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.appointmentsToday}</div>
+              <p className="text-xs text-muted-foreground">
+                Scheduled for today
+              </p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">This Week</CardTitle>
-                <TrendingUp className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.appointmentsThisWeek}</div>
-                <p className="text-xs text-muted-foreground">
-                  Scheduled appointments
-                </p>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">This Week</CardTitle>
+              <TrendingUp className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.appointmentsThisWeek}</div>
+              <p className="text-xs text-muted-foreground">
+                Scheduled appointments
+              </p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending</CardTitle>
-                <Clock className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.pendingAppointments}</div>
-                <p className="text-xs text-muted-foreground">
-                  Awaiting confirmation
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending</CardTitle>
+              <Clock className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.pending}</div>
+              <p className="text-xs text-muted-foreground">
+                Awaiting confirmation
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Appointments */}
         <motion.div
