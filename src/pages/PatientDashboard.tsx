@@ -28,10 +28,7 @@ export const PatientDashboard: React.FC = () => {
   const { toast } = useToast();
   const { appointments, isLoading, refreshAppointments, stats } = useAppointments();
 
-  // Load appointments on component mount
-  useEffect(() => {
-    refreshAppointments();
-  }, [refreshAppointments]);
+  // Appointments are automatically loaded via WebSocket in useAppointments hook
 
   const handleLogout = () => {
     localStorage.removeItem('doctorcare_auth');

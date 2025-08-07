@@ -27,10 +27,7 @@ export const Dashboard = () => {
   const { toast } = useToast();
   const { appointments, isLoading, refreshAppointments, updateAppointment, stats } = useAppointments();
 
-  // Load appointments on component mount
-  useEffect(() => {
-    refreshAppointments();
-  }, [refreshAppointments]);
+  // Appointments are automatically loaded via WebSocket in useAppointments hook
 
   const handleLogout = () => {
     // Clear localStorage based on user type
@@ -271,7 +268,7 @@ export const Dashboard = () => {
                               size="sm"
                               variant="outline"
                               className="text-xs h-7"
-                              onClick={() => updateAppointment(appointment.id, { status: 'confirmed' })}
+                              onClick={() => updateAppointment(parseInt(appointment.id), { status: 'confirmed' })}
                             >
                               Approve
                             </Button>
@@ -287,7 +284,7 @@ export const Dashboard = () => {
                               size="sm"
                               variant="destructive"
                               className="text-xs h-7"
-                              onClick={() => updateAppointment(appointment.id, { status: 'cancelled' })}
+                              onClick={() => updateAppointment(parseInt(appointment.id), { status: 'cancelled' })}
                             >
                               Cancel
                             </Button>

@@ -34,10 +34,7 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [view, setView] = useState<ViewType>('timeGridWeek');
 
-  // Load appointments on mount
-  useEffect(() => {
-    refreshAppointments();
-  }, [refreshAppointments]);
+  // Appointments are automatically loaded via WebSocket in useAppointments hook
 
   // Convert appointments to calendar events
   const convertToCalendarEvents = useCallback((appointments: Appointment[]): CalendarEvent[] => {
@@ -64,9 +61,9 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
     setEvents(calendarEvents);
   }, [appointments, convertToCalendarEvents]);
 
-  const handleStatusUpdate = async (appointmentId: number, newStatus: 'confirmed' | 'cancelled' | 'pending') => {
+  const handleStatusUpdate = async (appointmentId: string, newStatus: 'confirmed' | 'cancelled' | 'pending') => {
     try {
-      await updateAppointment(appointmentId, { status: newStatus });
+      await updateAppointment(parseInt(appointmentId), { status: newStatus });
       
       toast({
         title: 'Appointment Updated',

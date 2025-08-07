@@ -131,12 +131,20 @@ export const useAppointments = () => {
   useEffect(() => {
     if (!auth.isAuthenticated) return;
 
-    const wsUrl = (import.meta.env.VITE_WS_URL || 'ws://localhost:3001').replace(/^http/, 'ws');
-    const ws = new WebSocket(wsUrl);
+    // Initial fetch on mount to ensure we have latest data
+    refreshAppointments();
+
+    const wsUrl = import.meta.env.DEV 
+      ? 'ws://localhost:3001' 
+      : (import.meta.env.VITE_WS_URL || 'ws://localhost:3001').replace(/^http/, 'ws');
+    
+    let ws: WebSocket;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
 
     const connectWebSocket = () => {
+      ws = new WebSocket(wsUrl);
+      
       ws.onopen = () => {
         console.log('WebSocket connected');
         reconnectAttempts = 0; // Reset on successful connection
@@ -223,13 +231,13 @@ export const useAppointments = () => {
     };
 
     connectWebSocket();
-    // Initial data fetch
-    refreshAppointments();
 
     return () => {
-      ws.close();
+      if (ws) {
+        ws.close();
+      }
     };
-  }, [auth.isAuthenticated, auth.doctor?.id, auth.patient?.id, setAppointments, toast, refreshAppointments]);
+  }, [auth.isAuthenticated, auth.doctor?.id, auth.patient?.id, auth.patient?.email, setAppointments, toast, refreshAppointments]);
 
   const updateAppointment = useCallback(async (
     appointmentId: number,

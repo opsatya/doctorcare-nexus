@@ -29,7 +29,7 @@ export const DoctorListPage = () => {
   const navigate = useNavigate();
 
 useEffect(() => {
-    fetchDoctors(); // Single fetch on component mount - no polling needed
+    fetchDoctors();
   }, []);
 
   const fetchDoctors = async () => {
