@@ -49,7 +49,7 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
       endDate.setHours(startDate.getHours() + 1);
 
       return {
-        id: apt.id,
+        id: apt.id.toString(),
         title: `${apt.patientName} - ${apt.reason}`,
         start: startDate,
         end: endDate,
@@ -64,7 +64,7 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
     setEvents(calendarEvents);
   }, [appointments, convertToCalendarEvents]);
 
-  const handleStatusUpdate = async (appointmentId: string, newStatus: 'confirmed' | 'cancelled' | 'pending') => {
+  const handleStatusUpdate = async (appointmentId: number, newStatus: 'confirmed' | 'cancelled' | 'pending') => {
     try {
       await updateAppointment(appointmentId, { status: newStatus });
       
@@ -86,23 +86,39 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
 
     const newDate = moment(info.event.start).format('YYYY-MM-DD');
     const newTime = moment(info.event.start).format('HH:mm');
+    const appointmentId = parseInt(info.event.id, 10);
+
+    // Show loading state
+    const loadingToast = toast({
+      title: 'Rescheduling appointment...',
+      description: 'Please wait while we update the appointment.',
+    });
 
     try {
-      await updateAppointment(info.event.id, { date: newDate, time: newTime });
+      await updateAppointment(appointmentId, { 
+        date: newDate, 
+        time: newTime 
+      });
+
+      // Refresh appointments to ensure we have latest state
+      await refreshAppointments();
 
       toast({
         title: 'Appointment rescheduled',
-        description: `Moved to ${moment(info.event.start).format('MMMM Do, YYYY [at] h:mm A')}`,
+        description: `Successfully moved to ${moment(info.event.start).format('MMMM Do, YYYY [at] h:mm A')}`,
       });
     } catch (error) {
+      // Revert the drag if failed
       info.revert();
+      console.error('Rescheduling failed:', error);
+      
       toast({
-        title: 'Error',
-        description: 'Failed to reschedule appointment.',
+        title: 'Rescheduling failed',
+        description: 'Could not reschedule the appointment. Please try again.',
         variant: 'destructive',
       });
     }
-  }, [updateAppointment, toast]);
+  }, [updateAppointment, refreshAppointments, toast]);
 
   const toggleView = () => {
     setView((prev) => (prev === 'timeGridWeek' ? 'dayGridMonth' : 'timeGridWeek'));
@@ -149,6 +165,31 @@ export const DoctorCalendar: React.FC<DoctorCalendarProps> = ({ onBack }) => {
               left: 'prev,next today',
               center: 'title',
               right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            }}
+            eventContent={(arg) => (
+              <div>
+                <b>{arg.timeText}</b>
+                <i>{arg.event.title}</i>
+              </div>
+            )}
+            eventClick={(info: EventClickArg) => {
+              const appointment = info.event.extendedProps.resource;
+              toast({
+                title: `Appointment: ${appointment.patientName}`,
+                description: (
+                  <div>
+                    <p>Reason: {appointment.reason}</p>
+                    <p>Status: {appointment.status}</p>
+                    {appointment.status === 'pending' && (
+                      <div className="flex space-x-2 mt-4">
+                        <Button onClick={() => handleStatusUpdate(appointment.id, 'confirmed')} size="sm">Approve</Button>
+                        <Button size="sm" disabled>Reschedule</Button>
+                        <Button onClick={() => handleStatusUpdate(appointment.id, 'cancelled')} size="sm" variant="destructive">Cancel</Button>
+                      </div>
+                    )}
+                  </div>
+                ),
+              });
             }}
           />
         </div>

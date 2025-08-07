@@ -29,9 +29,7 @@ export const DoctorListPage = () => {
   const navigate = useNavigate();
 
 useEffect(() => {
-    const intervalId = setInterval(fetchDoctors, 30000); // Poll every 30 seconds
-    fetchDoctors(); // Initial fetch
-    return () => clearInterval(intervalId); // Cleanup on component unmount
+    fetchDoctors(); // Single fetch on component mount - no polling needed
   }, []);
 
   const fetchDoctors = async () => {

@@ -1,4 +1,5 @@
 import { atom } from 'recoil';
+import { recoilPersist } from 'recoil-persist';
 
 export interface Doctor {
   id: string;
@@ -40,46 +41,20 @@ export interface Appointment {
   specialization?: string;
 }
 
-// Helper function to get initial auth state from localStorage
-const getInitialAuthState = (): AuthState => {
-  try {
-    // Check for doctor auth first
-    const doctorAuth = localStorage.getItem('doctorcare_auth');
-    if (doctorAuth) {
-      const parsed = JSON.parse(doctorAuth);
-      if (parsed.isAuthenticated && parsed.doctor && parsed.token) {
-        return parsed;
-      }
-    }
+const { persistAtom } = recoilPersist({
+  key: 'recoil-persist',
+  storage: localStorage,
+});
 
-    // Check for patient auth
-    const patientAuth = localStorage.getItem('doctorcare_patient_auth');
-    if (patientAuth) {
-      const parsed = JSON.parse(patientAuth);
-      if (parsed.isAuthenticated && parsed.patient && parsed.token) {
-        return {
-          isAuthenticated: true,
-          doctor: null,
-          patient: parsed.patient,
-          token: parsed.token,
-        };
-      }
-    }
-  } catch (error) {
-    console.error('Error loading auth state from localStorage:', error);
-  }
-
-  return {
+export const authState = atom<AuthState>({
+  key: 'authState',
+  default: {
     isAuthenticated: false,
     doctor: null,
     patient: null,
     token: null,
-  };
-};
-
-export const authState = atom<AuthState>({
-  key: 'authState',
-  default: getInitialAuthState(),
+  },
+  effects_UNSTABLE: [persistAtom],
 });
 
 export const loadingState = atom<boolean>({
@@ -88,9 +63,11 @@ export const loadingState = atom<boolean>({
 });
 
 // Unified appointments global state - shared across all components
+// Note: NOT persisted - always fetch from backend to ensure latest state
 export const appointmentsState = atom<Appointment[]>({
   key: 'appointmentsState',
   default: [],
+  // effects_UNSTABLE: [persistAtom], // Removed to prevent stale data
 });
 
 // Loading state for appointments
@@ -98,15 +75,3 @@ export const appointmentsLoadingState = atom<boolean>({
   key: 'appointmentsLoadingState',
   default: false,
 });
-
-// Utility function to clear auth state and localStorage
-export const clearAuthState = () => {
-  localStorage.removeItem('doctorcare_auth');
-  localStorage.removeItem('doctorcare_patient_auth');
-  return {
-    isAuthenticated: false,
-    doctor: null,
-    patient: null,
-    token: null,
-  };
-};

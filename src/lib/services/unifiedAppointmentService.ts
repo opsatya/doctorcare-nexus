@@ -40,7 +40,7 @@ export const fetchDoctorAppointments = async (
       id: apt.id.toString(),
       patientName: apt.patientName,
       doctorName: apt.doctorName,
-      doctorId: apt.doctorId,
+      doctorId: apt.doctorId.toString(),
       email: apt.email,
       phone: apt.phone,
       reason: apt.reason,
@@ -79,7 +79,7 @@ export const fetchPatientAppointments = async (
       id: apt.id.toString(),
       patientName: apt.patientName,
       doctorName: apt.doctorName,
-      doctorId: apt.doctorId,
+      doctorId: apt.doctorId.toString(),
       email: apt.email,
       phone: apt.phone,
       reason: apt.reason,
@@ -123,7 +123,7 @@ export const updateAppointment = async (
       id: updatedAppointment.id.toString(),
       patientName: updatedAppointment.patientName,
       doctorName: updatedAppointment.doctorName,
-      doctorId: updatedAppointment.doctorId,
+      doctorId: updatedAppointment.doctorId.toString(),
       email: updatedAppointment.email,
       phone: updatedAppointment.phone,
       reason: updatedAppointment.reason,
@@ -148,35 +148,55 @@ export const createAppointment = async (
   try {
     const fullApiBase = getApiBase();
 
+    // Prepare the appointment data for the backend
+    const backendData = {
+      patientName: appointmentData.patientName,
+      email: appointmentData.email,
+      phone: appointmentData.phone,
+      doctorId: appointmentData.doctorId,
+      doctorName: appointmentData.doctorName,
+      date: appointmentData.date,
+      time: appointmentData.time,
+      reason: appointmentData.reason,
+      status: appointmentData.status || 'pending',
+      specialization: appointmentData.specialization || '', // Add specialization with fallback
+    };
+
+    console.log('Creating appointment with data:', backendData);
+
     const response = await fetch(`${fullApiBase}/appointments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        ...(token && { Authorization: `Bearer ${token}` }), // Only add auth if token exists
       },
-      body: JSON.stringify(appointmentData),
+      body: JSON.stringify(backendData),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create appointment');
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(`Failed to create appointment: ${response.status} ${response.statusText}`);
     }
 
     const newAppointment = await response.json();
+    console.log('Appointment created successfully:', newAppointment);
+
     return {
       id: newAppointment.id.toString(),
       patientName: newAppointment.patientName,
-      doctorName: newAppointment.doctorName,
-      doctorId: newAppointment.doctorId,
+      doctorName: appointmentData.doctorName || '', // Use provided or fallback
+      doctorId: newAppointment.doctorId.toString(),
       email: newAppointment.email,
       phone: newAppointment.phone,
       reason: newAppointment.reason,
       status: newAppointment.status,
       time: newAppointment.time,
       date: newAppointment.date,
-      specialization: newAppointment.specialization,
+      specialization: appointmentData.specialization || '',
     };
   } catch (error) {
     console.error('Error creating appointment:', error);
-    throw new Error('Failed to create appointment');
+    throw error; // Re-throw the original error for better debugging
   }
 };

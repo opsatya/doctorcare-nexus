@@ -13,6 +13,7 @@ import { BookAppointmentPage } from "./pages/BookAppointmentPage";
 import { AppointmentsPage } from "./pages/AppointmentsPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { PatientDashboard } from "./pages/PatientDashboard";
+import { PrescriptionsPage } from "./pages/PrescriptionsPage";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 import NotFound from "./pages/NotFound";
@@ -74,6 +75,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <PatientDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/prescriptions" 
+            element={
+              <ProtectedRoute>
+                <PrescriptionsPage />
               </ProtectedRoute>
             }
           />

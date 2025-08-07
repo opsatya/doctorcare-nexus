@@ -91,3 +91,52 @@ export const profileUpdateSchema = yup.object().shape({
     .string()
     .required('Phone number is required'),
 });
+
+export const prescriptionSchema = yup.object().shape({
+  patientName: yup
+    .string()
+    .required('Patient name is required')
+    .min(2, 'Patient name must be at least 2 characters'),
+  appointmentId: yup
+    .string()
+    .optional(),
+  medicineName: yup
+    .string()
+    .required('Medicine name is required')
+    .min(2, 'Medicine name must be at least 2 characters'),
+  dosage: yup
+    .string()
+    .required('Dosage is required')
+    .min(2, 'Dosage must be specified'),
+  duration: yup
+    .string()
+    .required('Duration is required')
+    .min(2, 'Duration must be specified'),
+  notes: yup
+    .string()
+    .optional(),
+});
+
+// TypeScript types
+export interface Prescription {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  patientName: string;
+  appointmentId?: string;
+  medicineName: string;
+  dosage: string;
+  duration: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface PrescriptionFormData {
+  patientName: string;
+  appointmentId?: string;
+  medicineName: string;
+  dosage: string;
+  duration: string;
+  notes?: string;
+}

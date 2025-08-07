@@ -67,6 +67,9 @@ const apiBase = import.meta.env.VITE_API_URL || '/api';
       const result = await response.json();
 
       if (response.ok) {
+        // Clear any stale data from localStorage to prevent state issues
+        localStorage.removeItem('recoil-persist');
+        
         if (loginType === 'doctor') {
           const authData = {
             isAuthenticated: true,

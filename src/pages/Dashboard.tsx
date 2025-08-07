@@ -10,7 +10,8 @@ import {
   LogOut, 
   User,
   Stethoscope,
-  Bell
+  Bell,
+  Pill
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +19,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState } from '@/lib/recoil/atoms';
 import { useAppointments } from '@/hooks/useAppointments';
-import { AppointmentActions } from '@/components/ui/appointment-actions';
 
 export const Dashboard = () => {
   const auth = useRecoilValue(authState);
@@ -86,9 +86,27 @@ export const Dashboard = () => {
                 className="flex items-center space-x-2"
               >
                 <Calendar className="h-4 w-4" />
-                <span>Calendar View</span>
+                <span>Calendar</span>
               </Button>
-              <Bell className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/prescriptions')}
+                className="flex items-center space-x-2"
+              >
+                <Pill className="h-4 w-4" />
+                <span>Prescriptions</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => refreshAppointments()}
+                className="flex items-center space-x-2"
+                disabled={isLoading}
+              >
+                <Bell className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </Button>
               <div className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span className="text-sm font-medium">{auth.doctor?.name}</span>
@@ -115,12 +133,22 @@ export const Dashboard = () => {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome, {auth.doctor?.name}
-          </h1>
-          <p className="text-muted-foreground">
-            Here's a summary of your activities for today.
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                Welcome, {auth.doctor?.name}
+              </h1>
+              <p className="text-muted-foreground">
+                Here's a summary of your activities for today.
+              </p>
+            </div>
+            {isLoading && (
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                <span className="text-sm">Updating...</span>
+              </div>
+            )}
+          </div>
         </motion.div>
 
         {/* Stats Cards */}
@@ -191,10 +219,17 @@ export const Dashboard = () => {
         >
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Appointments</CardTitle>
-              <CardDescription>
-                Your scheduled appointments for the coming days
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Upcoming Appointments</CardTitle>
+                  <CardDescription>
+                    Your scheduled appointments for the coming days
+                  </CardDescription>
+                </div>
+                <Badge variant="secondary">
+                  {appointments.length} total
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -207,7 +242,7 @@ export const Dashboard = () => {
                 </div>
               ) : appointments.length > 0 ? (
                 <div className="space-y-4">
-                  {appointments.map((appointment) => (
+                  {appointments.slice(0, 5).map((appointment) => (
                     <div
                       key={appointment.id}
                       className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
@@ -230,9 +265,47 @@ export const Dashboard = () => {
                           </p>
                         </div>
                         {getStatusBadge(appointment.status)}
+                        {appointment.status === 'pending' && auth.doctor && (
+                          <div className="flex space-x-2 ml-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs h-7"
+                              onClick={() => updateAppointment(appointment.id, { status: 'confirmed' })}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs h-7"
+                              disabled // Reschedule requires a modal/form
+                            >
+                              Reschedule
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="text-xs h-7"
+                              onClick={() => updateAppointment(appointment.id, { status: 'cancelled' })}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
+                  {appointments.length > 5 && (
+                    <div className="text-center pt-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => navigate('/appointments')}
+                      >
+                        View All {appointments.length} Appointments
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -240,6 +313,13 @@ export const Dashboard = () => {
                   <p className="text-muted-foreground">
                     No appointments scheduled at the moment.
                   </p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => refreshAppointments()}
+                  >
+                    Refresh Data
+                  </Button>
                 </div>
               )}
             </CardContent>

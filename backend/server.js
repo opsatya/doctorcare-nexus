@@ -13,6 +13,9 @@ const middlewares = jsonServer.defaults();
 // Load database
 const db = JSON.parse(fs.readFileSync('db.json'));
 
+// Helper to generate unique string IDs
+const generateId = () => Date.now().toString();
+
 // Security middleware
 server.use(helmet());
 
@@ -111,7 +114,7 @@ server.post('/api/doctor/signup', (req, res) => {
   
   // Create new doctor
   const newDoctor = {
-    id: db.doctors.length + 1,
+    id: generateId(),
     name,
     email,
     password,
@@ -155,7 +158,7 @@ server.post('/api/patient/signup', (req, res) => {
   
   // Create new patient
   const newPatient = {
-    id: db.patients.length + 1,
+    id: generateId(),
     name,
     email,
     password,
@@ -200,7 +203,7 @@ server.post('/api/appointments', (req, res) => {
   const { patientName, email, phone, doctorId, date, time, reason } = req.body;
   
   // Find doctor
-  const doctor = db.doctors.find(d => d.id === doctorId);
+  const doctor = db.doctors.find(d => d.id == doctorId);
   if (!doctor) {
     return res.status(404).json({ error: 'Doctor not found' });
   }
@@ -209,7 +212,7 @@ server.post('/api/appointments', (req, res) => {
   const patient = db.patients.find(p => p.email === email);
   
   const newAppointment = {
-    id: Date.now(), // Simple ID generation
+    id: generateId(), // Simple ID generation
     patientId: patient ? patient.id : null,
     patientName,
     email,
@@ -266,35 +269,56 @@ server.post('/api/appointments', (req, res) => {
 
 // Update appointment (status, date, time, etc.)
 server.patch('/api/appointments/:id', (req, res) => {
-  const appointmentId = parseInt(req.params.id);
+  const { id: appointmentId } = req.params;
   const updates = req.body;
-  
-  const appointmentIndex = db.appointments.findIndex(a => a.id === appointmentId);
+
+  const appointmentIndex = db.appointments.findIndex(a => a.id == appointmentId);
   
   if (appointmentIndex === -1) {
     return res.status(404).json({ error: 'Appointment not found' });
   }
   
-  // Update appointment with provided fields
-  Object.assign(db.appointments[appointmentIndex], updates);
+  // Update appointment with provided fields and timestamp
+  Object.assign(db.appointments[appointmentIndex], {
+    ...updates,
+    updatedAt: new Date().toISOString()
+  });
   const updatedAppointment = db.appointments[appointmentIndex];
   
   // Save to file
   fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
   
-// Broadcast update to doctor and patient
-  console.log('Appointment updated, broadcasting:', updatedAppointment);
+  // Broadcast update to ALL connected clients (real-time updates)
+  console.log('Appointment updated, broadcasting to ALL clients:', updatedAppointment);
+  
+  // Broadcast to doctor
   broadcastToDoctor(updatedAppointment.doctorId, {
     type: 'appointment_updated',
     appointment: updatedAppointment
   });
   
+  // Broadcast to patient (try both patientId and email-based lookup)
   if (updatedAppointment.patientId) {
     broadcastToPatient(updatedAppointment.patientId, {
       type: 'appointment_updated',
       appointment: updatedAppointment
     });
+  } else if (updatedAppointment.email) {
+    // Find patient by email if patientId is not available
+    const patient = db.patients.find(p => p.email === updatedAppointment.email);
+    if (patient) {
+      broadcastToPatient(patient.id, {
+        type: 'appointment_updated',
+        appointment: updatedAppointment
+      });
+    }
   }
+  
+  // Also broadcast to all connected clients (for immediate UI updates)
+  broadcast({
+    type: 'appointment_updated',
+    appointment: updatedAppointment
+  });
   
   res.json(updatedAppointment);
 });
@@ -325,6 +349,155 @@ server.get('/api/doctors/:id/appointments', (req, res) => {
   
   const appointments = db.appointments.filter(appt => appt.doctorId == req.params.id);
   res.json(appointments);
+});
+
+// Prescriptions API endpoints
+
+// Get all prescriptions (for doctor)
+server.get('/api/doctor/prescriptions', (req, res) => {
+  console.log('Fetching prescriptions...');
+  
+  // Initialize prescriptions if not exists
+  if (!db.prescriptions) {
+    db.prescriptions = [];
+  }
+  
+  res.json({
+    success: true,
+    prescriptions: db.prescriptions
+  });
+});
+
+// Create new prescription
+server.post('/api/doctor/prescriptions', (req, res) => {
+  const { patientName, appointmentId, medicineName, dosage, duration, notes } = req.body;
+  
+  // Initialize prescriptions if not exists
+  if (!db.prescriptions) {
+    db.prescriptions = [];
+  }
+  
+  const newPrescription = {
+    id: generateId(),
+    doctorId: '1', // Mock doctor ID
+    doctorName: 'Dr. Sample', // Mock doctor name - in real app, get from auth
+    patientName,
+    appointmentId: appointmentId || null,
+    medicineName,
+    dosage,
+    duration,
+    notes: notes || '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  db.prescriptions.push(newPrescription);
+  
+  // Save to file
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+  
+  console.log('New prescription created:', newPrescription);
+  
+  res.json({
+    success: true,
+    message: 'Prescription created successfully',
+    prescription: newPrescription
+  });
+});
+
+// Update prescription
+server.put('/api/doctor/prescriptions/:id', (req, res) => {
+  const { id: prescriptionId } = req.params;
+  const updates = req.body;
+  
+  // Initialize prescriptions if not exists
+  if (!db.prescriptions) {
+    db.prescriptions = [];
+  }
+  
+  const prescriptionIndex = db.prescriptions.findIndex(p => p.id == prescriptionId);
+  
+  if (prescriptionIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Prescription not found'
+    });
+  }
+  
+  // Update prescription
+  Object.assign(db.prescriptions[prescriptionIndex], {
+    ...updates,
+    updatedAt: new Date().toISOString()
+  });
+  
+  const updatedPrescription = db.prescriptions[prescriptionIndex];
+  
+  // Save to file
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+  
+  console.log('Prescription updated:', updatedPrescription);
+  
+  res.json({
+    success: true,
+    message: 'Prescription updated successfully',
+    prescription: updatedPrescription
+  });
+});
+
+// Delete prescription
+server.delete('/api/doctor/prescriptions/:id', (req, res) => {
+  const { id: prescriptionId } = req.params;
+  
+  // Initialize prescriptions if not exists
+  if (!db.prescriptions) {
+    db.prescriptions = [];
+  }
+  
+  const prescriptionIndex = db.prescriptions.findIndex(p => p.id == prescriptionId);
+  
+  if (prescriptionIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Prescription not found'
+    });
+  }
+  
+  // Remove prescription
+  const deletedPrescription = db.prescriptions.splice(prescriptionIndex, 1)[0];
+  
+  // Save to file
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+  
+  console.log('Prescription deleted:', deletedPrescription);
+  
+  res.json({
+    success: true,
+    message: 'Prescription deleted successfully'
+  });
+});
+
+// Get single prescription
+server.get('/api/doctor/prescriptions/:id', (req, res) => {
+  const { id: prescriptionId } = req.params;
+  
+  // Initialize prescriptions if not exists
+  if (!db.prescriptions) {
+    db.prescriptions = [];
+  }
+  
+  const prescription = db.prescriptions.find(p => p.id == prescriptionId);
+  
+  if (!prescription) {
+    return res.status(404).json({
+      success: false,
+      message: 'Prescription not found'
+    });
+  }
+  
+  res.json({
+    success: true,
+    prescription
+  });
 });
 
 

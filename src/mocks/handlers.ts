@@ -327,4 +327,124 @@ export const handlers = [
       },
     });
   }),
+
+  // Prescriptions API
+  http.get('/api/doctor/prescriptions', async () => {
+    console.log('🔧 MSW: Handling GET /api/doctor/prescriptions');
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    return HttpResponse.json({
+      success: true,
+      prescriptions: [
+        {
+          id: '1',
+          doctorId: '1',
+          doctorName: 'Dr. John Smith',
+          patientName: 'Sarah Johnson',
+          appointmentId: '1',
+          medicineName: 'Amoxicillin',
+          dosage: '500mg',
+          duration: '7 days',
+          notes: 'Take with food. Complete the full course.',
+          createdAt: '2025-08-05T10:30:00.000Z',
+        },
+        {
+          id: '2',
+          doctorId: '1',
+          doctorName: 'Dr. John Smith',
+          patientName: 'Michael Brown',
+          appointmentId: '2',
+          medicineName: 'Ibuprofen',
+          dosage: '200mg',
+          duration: '5 days',
+          notes: 'Take after meals. Do not exceed 3 doses per day.',
+          createdAt: '2025-08-04T14:20:00.000Z',
+        },
+        {
+          id: '3',
+          doctorId: '1',
+          doctorName: 'Dr. John Smith',
+          patientName: 'Emily Davis',
+          medicineName: 'Paracetamol',
+          dosage: '500mg',
+          duration: '3 days',
+          notes: 'For fever and pain relief.',
+          createdAt: '2025-08-03T09:15:00.000Z',
+        },
+      ],
+    });
+  }),
+
+  http.post('/api/doctor/prescriptions', async ({ request }) => {
+    console.log('🔧 MSW: Handling POST /api/doctor/prescriptions');
+    const body = await request.json() as any;
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    const newPrescription = {
+      id: Date.now().toString(),
+      doctorId: '1',
+      doctorName: 'Dr. John Smith',
+      ...body,
+      createdAt: new Date().toISOString(),
+    };
+    
+    return HttpResponse.json({
+      success: true,
+      message: 'Prescription created successfully',
+      prescription: newPrescription,
+    });
+  }),
+
+  http.put('/api/doctor/prescriptions/:id', async ({ params, request }) => {
+    console.log('🔧 MSW: Handling PUT /api/doctor/prescriptions/:id', params.id);
+    const body = await request.json() as any;
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    const updatedPrescription = {
+      id: params.id,
+      doctorId: '1',
+      doctorName: 'Dr. John Smith',
+      ...body,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return HttpResponse.json({
+      success: true,
+      message: 'Prescription updated successfully',
+      prescription: updatedPrescription,
+    });
+  }),
+
+  http.delete('/api/doctor/prescriptions/:id', async ({ params }) => {
+    console.log('🔧 MSW: Handling DELETE /api/doctor/prescriptions/:id', params.id);
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    return HttpResponse.json({
+      success: true,
+      message: 'Prescription deleted successfully',
+    });
+  }),
+
+  http.get('/api/doctor/prescriptions/:id', async ({ params }) => {
+    console.log('🔧 MSW: Handling GET /api/doctor/prescriptions/:id', params.id);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const prescription = {
+      id: params.id,
+      doctorId: '1',
+      doctorName: 'Dr. John Smith',
+      patientName: 'Sarah Johnson',
+      appointmentId: '1',
+      medicineName: 'Amoxicillin',
+      dosage: '500mg',
+      duration: '7 days',
+      notes: 'Take with food. Complete the full course.',
+      createdAt: '2025-08-05T10:30:00.000Z',
+    };
+    
+    return HttpResponse.json({
+      success: true,
+      prescription,
+    });
+  }),
 ];

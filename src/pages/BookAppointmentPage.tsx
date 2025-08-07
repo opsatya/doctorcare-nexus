@@ -15,6 +15,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
+import { useAppointments } from '@/hooks/useAppointments';
+import { useRecoilValue } from 'recoil';
+import { authState } from '@/lib/recoil/atoms';
 import { cn } from '@/lib/utils';
 
 const appointmentSchema = yup.object().shape({
@@ -43,6 +46,10 @@ export const BookAppointmentPage = () => {
   const { doctorId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const auth = useRecoilValue(authState);
+  
+  // Use the unified appointments hook
+  const { createAppointment, refreshAppointments } = useAppointments();
   
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -54,6 +61,7 @@ export const BookAppointmentPage = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<AppointmentForm>({
     resolver: yupResolver(appointmentSchema),
   });
@@ -68,7 +76,16 @@ export const BookAppointmentPage = () => {
     if (doctorId) {
       fetchDoctor();
     }
-  }, [doctorId]);
+    
+    // Pre-fill patient information if user is authenticated
+    if (auth.patient) {
+      setValue('patientName', auth.patient.name);
+      setValue('email', auth.patient.email);
+      if (auth.patient.phone) {
+        setValue('phone', auth.patient.phone);
+      }
+    }
+  }, [doctorId, auth.patient, setValue]);
 
   const fetchDoctor = async () => {
     try {
@@ -99,41 +116,80 @@ export const BookAppointmentPage = () => {
       return;
     }
 
+    if (!doctor) {
+      toast({
+        title: 'Error',
+        description: 'Doctor information not loaded',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      const appointmentData = {
-        ...data,
-        doctorId: parseInt(doctorId!),
-        date: format(selectedDate, 'yyyy-MM-dd'),
-        time: selectedTime,
-        status: 'pending',
+      // Convert time format from "09:00 AM" to "09:00"
+      const convertTimeTo24Hour = (time12h: string): string => {
+        const [time, modifier] = time12h.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (hours === '12') {
+          hours = '00';
+        }
+        if (modifier === 'PM') {
+          hours = String(parseInt(hours, 10) + 12);
+        }
+        return `${hours}:${minutes}`;
       };
 
-      const apiBase = import.meta.env.DEV 
-        ? '/api' 
-        : (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api').replace(/\/+$/, '');
-      const response = await fetch(`${apiBase}/appointments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(appointmentData),
+      const appointmentData = {
+        patientName: data.patientName,
+        doctorName: doctor.name,
+        doctorId: doctor.id.toString(), // Ensure doctorId is a string!
+        email: data.email,
+        phone: data.phone,
+        reason: data.reason,
+        status: 'pending' as const,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        time: convertTimeTo24Hour(selectedTime),
+        specialization: doctor.specialization,
+      };
+
+      console.log('Submitting appointment data:', appointmentData);
+
+      // Use the unified createAppointment function
+      await createAppointment(appointmentData);
+
+      toast({
+        title: 'Appointment Booked!',
+        description: 'Your appointment has been successfully booked. You will receive a confirmation email shortly.',
       });
 
-      if (response.ok) {
-        toast({
-          title: 'Appointment Booked!',
-          description: 'Your appointment has been successfully booked. You will receive a confirmation email shortly.',
-        });
+      // Navigate based on user type
+      if (auth.patient) {
         navigate('/patient-dashboard');
       } else {
-        throw new Error('Failed to book appointment');
+        navigate('/appointments');
       }
     } catch (error) {
+      console.error('Booking error:', error);
+      
+      // More specific error messages
+      let errorMessage = 'Failed to book appointment. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('404')) {
+          errorMessage = 'Appointment service not available. Please contact support.';
+        } else if (error.message.includes('400')) {
+          errorMessage = 'Invalid appointment data. Please check your information.';
+        } else if (error.message.includes('401')) {
+          errorMessage = 'Authentication required. Please log in again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       toast({
         title: 'Error',
-        description: 'Failed to book appointment. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
