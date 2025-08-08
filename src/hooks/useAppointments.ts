@@ -1,105 +1,66 @@
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  appointmentsState, 
-  appointmentsLoadingState, 
+import websocketService from '@/lib/services/websocketService';
+import {
+  appointmentsState,
+  appointmentsLoadingState,
   authState,
-  Appointment 
+  Appointment
 } from '@/lib/recoil/atoms';
 
-// Direct API functions that work with your backend
+// Utility for API base URL
 const getApiBase = () => {
-  const apiBase = import.meta.env.DEV 
-    ? '/api' 
-    : (import.meta.env.VITE_API_URL || 'http://0.0.0.0:3001/api').replace(/\/+$/, '');
-  return apiBase;
+  if (import.meta.env.DEV) {
+    return import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  }
+  return (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/+$/, '');
 };
 
+const mapAppointment = (apt: any): Appointment => ({
+  id: apt.id,
+  patientName: apt.patientName,
+  doctorName: apt.doctorName || '',
+  doctorId: apt.doctorId,
+  email: apt.email,
+  phone: apt.phone,
+  reason: apt.reason,
+  status: apt.status,
+  time: apt.time,
+  date: apt.date,
+  specialization: apt.specialization || '',
+});
+
+// API Calls
+
 const fetchAllAppointments = async (): Promise<Appointment[]> => {
-  const apiBase = getApiBase();
-  const response = await fetch(`${apiBase}/appointments`, {
-    cache: 'no-store',
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch appointments');
-  }
-  
+  const response = await fetch(`${getApiBase()}/appointments`, { cache: 'no-store' });
+  if (!response.ok) throw new Error('Failed to fetch appointments');
   const data = await response.json();
-  return data.map((apt: any): Appointment => ({
-    id: apt.id,
-    patientName: apt.patientName,
-    doctorName: apt.doctorName || '',
-    doctorId: apt.doctorId,
-    email: apt.email,
-    phone: apt.phone,
-    reason: apt.reason,
-    status: apt.status,
-    time: apt.time,
-    date: apt.date,
-    specialization: apt.specialization || '',
-  }));
+  return data.map(mapAppointment);
 };
 
 const createAppointmentAPI = async (appointmentData: any): Promise<Appointment> => {
-  const apiBase = getApiBase();
-  const response = await fetch(`${apiBase}/appointments`, {
+  const response = await fetch(`${getApiBase()}/appointments`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(appointmentData),
   });
-
-  if (!response.ok) {
-    throw new Error('Failed to create appointment');
-  }
-
-  const newAppointment = await response.json();
-  return {
-    id: newAppointment.id,
-    patientName: newAppointment.patientName,
-    doctorName: newAppointment.doctorName || '',
-    doctorId: newAppointment.doctorId,
-    email: newAppointment.email,
-    phone: newAppointment.phone,
-    reason: newAppointment.reason,
-    status: newAppointment.status,
-    time: newAppointment.time,
-    date: newAppointment.date,
-    specialization: newAppointment.specialization || '',
-  };
+  if (!response.ok) throw new Error('Failed to create appointment');
+  return mapAppointment(await response.json());
 };
 
-const updateAppointmentAPI = async (appointmentId: number, updates: Partial<Appointment>): Promise<Appointment> => {
-  const apiBase = getApiBase();
-  const response = await fetch(`${apiBase}/appointments/${appointmentId}`, {
+const updateAppointmentAPI = async (
+  appointmentId: number,
+  updates: Partial<Appointment>
+): Promise<Appointment> => {
+  const response = await fetch(`${getApiBase()}/appointments/${appointmentId}`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
   });
-
-  if (!response.ok) {
-    throw new Error('Failed to update appointment');
-  }
-
-  const updatedAppointment = await response.json();
-  return {
-    id: updatedAppointment.id,
-    patientName: updatedAppointment.patientName,
-    doctorName: updatedAppointment.doctorName || '',
-    doctorId: updatedAppointment.doctorId,
-    email: updatedAppointment.email,
-    phone: updatedAppointment.phone,
-    reason: updatedAppointment.reason,
-    status: updatedAppointment.status,
-    time: updatedAppointment.time,
-    date: updatedAppointment.date,
-    specialization: updatedAppointment.specialization || '',
-  };
+  if (!response.ok) throw new Error('Failed to update appointment');
+  return mapAppointment(await response.json());
 };
 
 export const useAppointments = () => {
@@ -127,131 +88,48 @@ export const useAppointments = () => {
     }
   }, [setAppointments, setIsLoading, toast]);
 
-  // WebSocket connection for real-time updates
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      refreshAppointments();
+    }
+  }, [auth.isAuthenticated, refreshAppointments]);
+
+  // WebSocket subscriptions
   useEffect(() => {
     if (!auth.isAuthenticated) return;
-
-    // Initial fetch on mount to ensure we have latest data
-    refreshAppointments();
-
-    const wsUrl = import.meta.env.DEV 
-      ? 'ws://localhost:3001' 
-      : (import.meta.env.VITE_WS_URL || 'ws://localhost:3001').replace(/^http/, 'ws');
-    
-    let ws: WebSocket;
-    let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
-
-    const connectWebSocket = () => {
-      ws = new WebSocket(wsUrl);
-      
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-        reconnectAttempts = 0; // Reset on successful connection
-        
-        // Authenticate based on user type
-        if (auth.doctor?.id) {
-          ws.send(JSON.stringify({ 
-            type: 'auth', 
-            userType: 'doctor', 
-            doctorId: auth.doctor.id 
-          }));
-        } else if (auth.patient?.id) {
-          ws.send(JSON.stringify({ 
-            type: 'auth', 
-            userType: 'patient', 
-            patientId: auth.patient.id 
-          }));
-        }
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          console.log('WebSocket message received:', message);
-
-          if (message.type === 'appointment_created') {
-            const newAppointment = message.appointment;
-            setAppointments((prev) => {
-              // Check if appointment already exists (prevent duplicates)
-              if (prev.find(apt => apt.id === newAppointment.id)) {
-                return prev;
-              }
-              return [...prev, newAppointment];
-            });
-            
-            // Only show toast if relevant to current user
-            if (auth.doctor && newAppointment.doctorId === auth.doctor.id) {
-              toast({ 
-                title: 'New Appointment', 
-                description: `A new appointment for ${newAppointment.patientName} has been booked.` 
-              });
-            } else if (auth.patient && newAppointment.email === auth.patient.email) {
-              toast({ 
-                title: 'Appointment Confirmed', 
-                description: `Your appointment with Dr. ${newAppointment.doctorName} has been created.` 
-              });
-            }
-          } else if (message.type === 'appointment_updated') {
-            const updatedAppointment = message.appointment;
-            setAppointments((prev) =>
-              prev.map((apt) => (apt.id === updatedAppointment.id ? updatedAppointment : apt))
-            );
-            
-            // Only show toast if relevant to current user
-            if ((auth.doctor && updatedAppointment.doctorId === auth.doctor.id) ||
-                (auth.patient && updatedAppointment.email === auth.patient.email)) {
-              toast({ 
-                title: 'Appointment Updated', 
-                description: `Appointment for ${updatedAppointment.patientName} has been ${updatedAppointment.status}.`,
-                variant: updatedAppointment.status === 'cancelled' ? 'destructive' : 'default'
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Error processing WebSocket message:', error);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        // Attempt to reconnect with exponential backoff
-        if (reconnectAttempts < maxReconnectAttempts) {
-          setTimeout(() => {
-            console.log(`Attempting to reconnect... (${reconnectAttempts + 1}/${maxReconnectAttempts})`);
-            reconnectAttempts++;
-            connectWebSocket();
-          }, Math.pow(2, reconnectAttempts) * 1000); // 1s, 2s, 4s, 8s, 16s
-        }
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    };
-
-    connectWebSocket();
-
-    return () => {
-      if (ws) {
-        ws.close();
-      }
-    };
-  }, [auth.isAuthenticated, auth.doctor?.id, auth.patient?.id, auth.patient?.email, setAppointments, toast, refreshAppointments]);
-
-  const updateAppointment = useCallback(async (
-    appointmentId: number,
-    updates: Partial<Appointment>
-  ) => {
-    try {
-      console.log('Updating appointment:', appointmentId, updates);
-      
-      await updateAppointmentAPI(appointmentId, updates);
-      
-      toast({
-        title: 'Appointment updated',
-        description: 'The appointment has been updated successfully.',
+    // --- Deduplication for new/updated appointments ---
+    const handleCreated = (msg: { appointment: Appointment }) => {
+      setAppointments(prev => {
+        if (prev.some(a => String(a.id) === String(msg.appointment.id))) return prev;
+        return [msg.appointment, ...prev];
       });
+      toast({ title: 'New Appointment', description: 'A new appointment has been scheduled.' });
+    };
+    const handleUpdated = (msg: { appointment: Appointment }) => {
+      setAppointments(prev => {
+        const idx = prev.findIndex(a => String(a.id) === String(msg.appointment.id));
+        if (idx > -1) {
+          const updated = [...prev];
+          updated[idx] = msg.appointment;
+          return updated;
+        }
+        return [msg.appointment, ...prev];
+      });
+      toast({ title: 'Appointment Updated', description: 'An appointment has been updated.' });
+    };
+
+    const unsubCreated = websocketService.subscribe('appointment_created', handleCreated);
+    const unsubUpdated = websocketService.subscribe('appointment_updated', handleUpdated);
+    return () => {
+      unsubCreated();
+      unsubUpdated();
+    };
+  }, [auth.isAuthenticated, setAppointments, toast]);
+
+  const updateAppointment = useCallback(async (id: number, updates: Partial<Appointment>) => {
+    try {
+      await updateAppointmentAPI(id, updates);
+      toast({ title: 'Appointment updated', description: 'The appointment has been updated successfully.' });
     } catch (error) {
       console.error('Error updating appointment:', error);
       toast({
@@ -263,31 +141,25 @@ export const useAppointments = () => {
     }
   }, [toast]);
 
-  const createAppointment = useCallback(async (
-    appointmentData: Omit<Appointment, 'id'>
-  ) => {
+  const createAppointment = useCallback(async (data: Omit<Appointment, 'id'>) => {
     try {
-      console.log('Creating appointment:', appointmentData);
-      
       const backendData = {
-        patientName: appointmentData.patientName,
-        email: appointmentData.email,
-        phone: appointmentData.phone,
-        doctorId: Number(appointmentData.doctorId),
-        date: appointmentData.date,
-        time: appointmentData.time,
-        reason: appointmentData.reason,
-        status: appointmentData.status || 'pending',
+        patientName: data.patientName,
+        email: data.email,
+        phone: data.phone,
+        doctorId: Number(data.doctorId),
+        date: data.date,
+        time: data.time,
+        reason: data.reason,
+        status: data.status || 'pending',
       };
-      
       const newAppointment = await createAppointmentAPI(backendData);
-      console.log('Appointment created successfully:', newAppointment);
-
-      toast({
-        title: 'Appointment created',
-        description: 'The appointment has been created successfully.',
+      // --- Optimistic Update, dedupe ---
+      setAppointments(prev => {
+        if (prev.some(a => String(a.id) === String(newAppointment.id))) return prev;
+        return [newAppointment, ...prev];
       });
-      
+      toast({ title: 'Appointment created', description: 'The appointment has been created successfully.' });
       return newAppointment;
     } catch (error) {
       console.error('Error creating appointment:', error);
@@ -298,26 +170,20 @@ export const useAppointments = () => {
       });
       throw error;
     }
-  }, [toast]);
+  }, [toast, setAppointments]);
 
-  // Get filtered appointments for current user
   const getUserAppointments = useCallback(() => {
-    if (auth.doctor?.id) {
-      return appointments.filter(apt => apt.doctorId === auth.doctor!.id);
-    } else if (auth.patient?.email) {
-      return appointments.filter(apt => apt.email === auth.patient!.email);
-    }
-    return appointments; // Return all if no specific user context
+    if (auth.doctor?.id) return appointments.filter(apt => apt.doctorId === auth.doctor.id);
+    if (auth.patient?.email) return appointments.filter(apt => apt.email === auth.patient.email);
+    return appointments;
   }, [appointments, auth]);
 
-  // Calculate appointment statistics
   const getAppointmentStats = useCallback(() => {
     const userAppointments = getUserAppointments();
     const today = new Date().toISOString().split('T')[0];
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     const weekStart = startOfWeek.toISOString().split('T')[0];
-
     return {
       total: userAppointments.length,
       totalPatients: auth.doctor ? new Set(userAppointments.map(apt => apt.email)).size : 0,

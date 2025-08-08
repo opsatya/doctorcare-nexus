@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Prescription, PrescriptionFormData } from '@/lib/validation/schemas';
 import { useToast } from '@/hooks/use-toast';
 
+// Utility for correct API base (matches all other files in your repo):
+const getApiBase = () =>
+  import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 interface PrescriptionsHookReturn {
   prescriptions: Prescription[];
   isLoading: boolean;
@@ -28,7 +32,7 @@ export const usePrescriptions = (): PrescriptionsHookReturn => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/doctor/prescriptions');
+      const response = await fetch(`${getApiBase()}/doctor/prescriptions`);
       const data = await response.json();
 
       if (data.success) {
@@ -50,12 +54,12 @@ export const usePrescriptions = (): PrescriptionsHookReturn => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/doctor/prescriptions', {
+      const response = await fetch(`${getApiBase()}/doctor/prescriptions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ prescription: data }),
       });
 
       const result = await response.json();
@@ -65,7 +69,7 @@ export const usePrescriptions = (): PrescriptionsHookReturn => {
           title: 'Success',
           description: result.message || 'Prescription created successfully',
         });
-        fetchPrescriptions(); // Refresh the list
+        fetchPrescriptions();
         return true;
       } else {
         throw new Error(result.message || 'Failed to create prescription');
@@ -89,12 +93,12 @@ export const usePrescriptions = (): PrescriptionsHookReturn => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/doctor/prescriptions/${id}`, {
+      const response = await fetch(`${getApiBase()}/doctor/prescriptions/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ prescription: data }),
       });
 
       const result = await response.json();
@@ -104,7 +108,7 @@ export const usePrescriptions = (): PrescriptionsHookReturn => {
           title: 'Success',
           description: result.message || 'Prescription updated successfully',
         });
-        fetchPrescriptions(); // Refresh the list
+        fetchPrescriptions();
         return true;
       } else {
         throw new Error(result.message || 'Failed to update prescription');
@@ -128,7 +132,7 @@ export const usePrescriptions = (): PrescriptionsHookReturn => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/doctor/prescriptions/${id}`, {
+      const response = await fetch(`${getApiBase()}/doctor/prescriptions/${id}`, {
         method: 'DELETE',
       });
 
@@ -139,7 +143,7 @@ export const usePrescriptions = (): PrescriptionsHookReturn => {
           title: 'Success',
           description: result.message || 'Prescription deleted successfully',
         });
-        fetchPrescriptions(); // Refresh the list
+        fetchPrescriptions();
         return true;
       } else {
         throw new Error(result.message || 'Failed to delete prescription');

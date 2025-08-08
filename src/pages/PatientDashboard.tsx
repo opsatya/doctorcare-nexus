@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState } from '@/lib/recoil/atoms';
 import { useAppointments } from '@/hooks/useAppointments';
+import websocketService from '@/lib/services/websocketService';
 
 export const PatientDashboard: React.FC = () => {
   const auth = useRecoilValue(authState);
@@ -31,6 +32,7 @@ export const PatientDashboard: React.FC = () => {
   // Appointments are automatically loaded via WebSocket in useAppointments hook
 
   const handleLogout = () => {
+    websocketService.disconnect();
     localStorage.removeItem('doctorcare_auth');
     localStorage.removeItem('doctorcare_patient_auth');
     

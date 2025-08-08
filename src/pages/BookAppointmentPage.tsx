@@ -16,8 +16,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { useAppointments } from '@/hooks/useAppointments';
-import { useRecoilValue } from 'recoil';
-import { authState } from '@/lib/recoil/atoms';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { authState, appointmentsState } from '@/lib/recoil/atoms';
 import { cn } from '@/lib/utils';
 
 const appointmentSchema = yup.object().shape({
@@ -49,7 +49,8 @@ export const BookAppointmentPage = () => {
   const auth = useRecoilValue(authState);
   
   // Use the unified appointments hook
-  const { createAppointment, refreshAppointments } = useAppointments();
+  const { createAppointment } = useAppointments();
+  const setAppointments = useSetRecoilState(appointmentsState);
   
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -157,7 +158,15 @@ export const BookAppointmentPage = () => {
       console.log('Submitting appointment data:', appointmentData);
 
       // Use the unified createAppointment function
-      await createAppointment(appointmentData);
+      const created = await createAppointment(appointmentData);
+
+    // Optimistic update
+    setAppointments(prev => {
+      if (!created) return prev;
+      // Avoid duplicates if WS update arrives fast
+      if (prev.some(a => String(a.id) === String(created.id))) return prev;
+      return [created, ...prev];
+    });
 
       toast({
         title: 'Appointment Booked!',

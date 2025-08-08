@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState } from '@/lib/recoil/atoms';
+import websocketService from '@/lib/services/websocketService';
 import { useAppointments } from '@/hooks/useAppointments';
 
 export const Dashboard = () => {
@@ -30,6 +31,7 @@ export const Dashboard = () => {
   // Appointments are automatically loaded via WebSocket in useAppointments hook
 
   const handleLogout = () => {
+    websocketService.disconnect();
     // Clear localStorage based on user type
     localStorage.removeItem('doctorcare_auth');
     localStorage.removeItem('doctorcare_patient_auth');

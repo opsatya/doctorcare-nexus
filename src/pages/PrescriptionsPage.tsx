@@ -20,6 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { authState } from '@/lib/recoil/atoms';
+import websocketService from '@/lib/services/websocketService';
 import { usePrescriptions } from '@/hooks/usePrescriptions';
 import { PrescriptionForm } from '@/components/prescriptions/PrescriptionForm';
 import { PrescriptionList } from '@/components/prescriptions/PrescriptionList';
@@ -38,6 +39,7 @@ export const PrescriptionsPage = () => {
   const [viewingPrescription, setViewingPrescription] = useState<Prescription | null>(null);
 
   const handleLogout = () => {
+    websocketService.disconnect();
     // Clear localStorage based on user type
     localStorage.removeItem('doctorcare_auth');
     localStorage.removeItem('doctorcare_patient_auth');
